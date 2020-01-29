@@ -12,94 +12,74 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn.preprocessing import StandardScaler
 
-def plot(res, sigma, stdev):
-    ########### REAL RFDT DATA GOES HERE ##############
-
-    # Data for Random Forest model errors
-    # RF_model_errors = np.random.random_sample(400, ) * 1.5
-    # Data for Random Forest absolute residuals
-    # RF_abs_res = np.random.random_sample(400, )
-    # Value of Dataset Standard Deviation
-    # RF_stdev = 0.4738  # Actual value is 0.4738
-
-    RF_model_errors = sigma
-    RF_abs_res = res
-    RF_stdev = stdev
-
-    # %%
-
-    # Divide RF data by RF standard deviation
-    RF_model_errors = RF_model_errors / RF_stdev
-    RF_abs_res = RF_abs_res / RF_stdev
-
-    # %%
+def plot(res, sigma, stdev, model_name, number_of_bins):
+    # Define input data -- divide by standard deviation
+    model_errors = sigma / stdev
+    abs_res = res /stdev
 
     # Create initial scatter plot
-    plt.xlabel("RF model errors / dataset stdev")
-    plt.ylabel("RF Absolute residuals / dataset stdev")
-    plt.title("RFDT Absolute Residuals vs. Model Errors")
-    plt.plot(RF_model_errors, RF_abs_res, '.', color='blue');
-
-    # %%
+    plt.xlabel("%s model errors / dataset stdev" % (model_name))
+    plt.ylabel("%s Absolute residuals / dataset stdev" % (model_name))
+    plt.title("%s Absolute Residuals vs. Model Errors" % (model_name))
+    plt.plot(model_errors, abs_res, '.', color='blue');
 
     plt.show()
 
-    # Set number of bins for RMS calculation
-    RF_number_of_bins = 20
     # Histogram of RF error bin counts
-    plt.hist(RF_model_errors, bins=RF_number_of_bins, color='blue', edgecolor='black')
-    plt.xlabel("RF model errors / dataset stdev")
+    plt.hist(model_errors, bins=number_of_bins, color='blue', edgecolor='black')
+    plt.xlabel("%s model errors / dataset stdev" % (model_name))
     plt.ylabel("Counts")
-    plt.title("RFDT Bin Counts");
-
-    # %%
+    plt.title("%s Bin Counts" % (model_name));
 
     plt.show()
 
     # Set bins for calculating RMS
-    RF_upperbound = np.amax(RF_model_errors)
-    RF_lowerbound = np.amin(RF_model_errors)
-    RF_bins = np.linspace(RF_lowerbound, RF_upperbound, RF_number_of_bins)
-    # Create a vector determining bin of each data point
-    RF_digitized = np.digitize(RF_model_errors, RF_bins)
-    # Calculate RMS of the absolute residuals
-    RF_RMS_abs_res = [np.sqrt((RF_abs_res[RF_digitized == i] ** 2).mean()) for i in range(1, len(RF_bins))]
+    upperbound = np.amax(model_errors)
+    lowerbound = np.amin(model_errors)
+    bins = np.linspace(lowerbound, upperbound, number_of_bins, endpoint=False)
 
-    # %%
+    # Create a vector determining bin of each data point
+    digitized = np.digitize(model_errors, bins)
+
+    # Record which bins contain data (to avoid trying to do calculations on empty bins)
+    bins_present = []
+    for i in range(1, number_of_bins + 1):
+        if i in digitized:
+            bins_present.append(i)
+
+    # Calculate RMS of the absolute residuals
+    RMS_abs_res = [np.sqrt((abs_res[digitized == bins_present[i]] ** 2).mean()) for i in range(0, len(bins_present))]
 
     # Set the x-values to the midpoint of each bin
-    RF_start = (RF_bins[0] + RF_bins[1]) / 2
-    RF_end = RF_bins[len(RF_bins) - 1] - RF_start
-    RF_binned_model_errors = np.linspace(RF_start, RF_end, len(RF_bins) - 1)
-
-    # %%
+    bin_width = bins[1]-bins[0]
+    binned_model_errors = np.zeros(len(bins_present))
+    for i in range(0, len(bins_present)):
+        curr_bin = bins_present[i]
+        binned_model_errors[i] = bins[curr_bin-1] + bin_width/2
 
     # Fit a line to the data
-    # RF_model = LinearRegression(fit_intercept=False)
-    #
-    # RF_model.fit(RF_binned_model_errors[:, np.newaxis],
-    #              RF_RMS_abs_res)  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
-    #
-    # RF_xfit = np.linspace(0, RF_upperbound, RF_number_of_bins - 1)
-    # RF_yfit = RF_model.predict(RF_xfit[:, np.newaxis])
+    model = LinearRegression(fit_intercept=False)
+    model.fit(binned_model_errors[:, np.newaxis],
+                  RMS_abs_res)  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
+    xfit = binned_model_errors
+    yfit = model.predict(xfit[:, np.newaxis])
 
-    # %%
+    # Calculate r^2 value
+    r_squared = r2_score(RMS_abs_res, yfit)
+    # Calculate slope
+    slope = model.coef_
 
     # Create RMS scatter plot
-    plt.xlabel("RF model errors / dataset stdev")
-    plt.ylabel("RF RMS Absolute residuals / dataset stdev")
-    # plt.ylim(0,1)
-    plt.title("RFDT RMS Absolute Residuals vs. Model Errors")
-    plt.plot(RF_binned_model_errors, RF_RMS_abs_res, 'o', color='blue')
-    # plt.plot(RF_xfit, RF_yfit);
-
-    # %%
+    plt.xlabel("%s model errors / dataset stdev" % (model_name))
+    plt.ylabel("%s RMS Absolute residuals / dataset stdev" % (model_name))
+    plt.ylim(0,1)
+    plt.title("%s RMS Absolute Residuals vs. Model Errors" % (model_name))
+    plt.text(0.2,0.8,'r^2 = %f' %(r_squared))
+    plt.text(0.2,0.7, 'slope = %f' %(slope))
+    plt.plot(binned_model_errors, RMS_abs_res, 'o', color='blue')
+    plt.plot(xfit, yfit);
 
     plt.show()
-
-    # r2_score(RF_RMS_abs_res, RF_yfit)
-
-    # %%
 
 # Fetch data with filename
 def importdata(filename):
@@ -149,9 +129,9 @@ def main():
     X_train = sc.fit_transform(X_train)
     X_test = sc.transform(X_test)
     res, sigma, std = getgprmetrics(X_train, y_train, X_test, y_test)
-    plot(res, sigma, std)
+    plot(res, sigma, std, "GPR", 8)
     res, sigma, std = getrfmetrics(X_train, y_train, X_test, y_test)
-    plot(res, sigma, std)
+    plot(res, sigma, std, "RF", 8)
 
 if __name__ == "__main__":
     main()
