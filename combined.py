@@ -92,13 +92,17 @@ def getdata(data):
     data = data.drop([0])
     return data
 
+def printgprinfo(gp, X_test=None, y_test=None):
+    print(gp.kernel_)
+    print(gp.log_marginal_likelihood(gp.kernel_.theta))
+    if X_test is not None and y_test is not None:
+        print(gp.score(X_test, y_test))
+
 def getgprmetrics(X_train, y_train, X_test, y_test):
     kernel = ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
-    gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10)
-    gp.fit(X_train, y_train)
-    # print(gp.kernel_)
-    # print(gp.log_marginal_likelihood(gp.kernel_.theta))
-    # print(gpr.score(X_test, y_test))
+    gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10).fit(X_train, y_train)
+    # uncomment below to print gpr model kernel, likelihood and r^2 score
+    # printgprinfo(gp, X_test, y_test)
     y_pred, sigma = gp.predict(X_test, return_std=True)
     y_test = y_test.to_numpy(dtype=float)
     y_std = statistics.stdev(y_test)
