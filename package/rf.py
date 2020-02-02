@@ -25,6 +25,8 @@ class RF:
 
     def predict(self, x_test, retstd=True):
         x_pred = self.sc.transform(x_test)
+        if retstd is False:
+            return self.rf.predict(x_pred)
         error = []
         preds = []
         for x in range(len(x_pred)):
@@ -34,7 +36,6 @@ class RF:
             error.append(statistics.stdev(preds))
         error = np.array(error)
         return self.rf.predict(x_pred), error/self.y_std_train
-        # return self.rf.predict(x_pred)
 
     def getrfmetrics(self, X_test, y_test):
         X_pred = self.sc.transform(X_test)
