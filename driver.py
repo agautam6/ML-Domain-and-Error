@@ -108,6 +108,8 @@ def predictdomain(GPR_error, RF_error):
        return 0
 
 
+# Test Description: training GPR and RF models from 'alldata' (70% train 30% test) and plotting
+# residual/y_std vs error/y_std for test data for both models
 def test1():
     data = importdata('_haijinlogfeaturesnobarrier_alldata.csv')
     data = getdata(data)
@@ -122,6 +124,8 @@ def test1():
     plot(res, sigma, "RF", 8)
 
 
+# Test Description: training GPR and RF models from 'alldata' or 'alldata_no_Pd', making predictions for 'Pd_only' and
+# tabulating domain IN/OUT
 def test2():
     data = importdata('_haijinlogfeaturesnobarrier_alldata_no_Pd.csv')
     data = getdata(data)
@@ -138,22 +142,17 @@ def test2():
     RF = rf.RF()
     RF.train(X_train, y_train)
     pred, RF_errors = RF.predict(test_data, True)
-
     # GPR_errors = np.random.random_sample(37, )
     # RF_errors = np.random.random_sample(37, )
-
     data = importdatanames('_haijinlogfeatures_Pd_only.csv')
-
     list = []
     for element in data[24]:
         list.append(element)
     del list[0]
-
     list2 = []
     for element in data[25]:
         list2.append(element)
     del list2[0]
-
     final_list = []
     for i in range(0, 37):
         first = list[i]
@@ -161,16 +160,13 @@ def test2():
         combined = first + "-" + second
         final_list.append(combined)
     print(final_list)
-
     predictions = [predictdomain(GPR_errors[i], RF_errors[i]) for i in range(0, 37)]
-
     results = [(final_list[i], predictions[i], GPR_errors[i], RF_errors[i]) for i in range(0, 37)]
-
     print(tabulate(results, headers=["Material", "In domain?", "GPR predicted error", "RF predicted error"]))
 
 
 def main():
-    # test1()
+    test1()
     test2()
 
 
