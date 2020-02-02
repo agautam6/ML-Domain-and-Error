@@ -65,7 +65,9 @@ def test2():
     print(tabulate(results, headers=["Material", "In domain?", "GPR predicted error", "RF predicted error"]))
 
 
-def test3():
+# Test for getting plots using cross validation
+
+def test3(k, n):
     data = io.importdata('_haijinlogfeaturesnobarrier_alldata.csv')
     data = io.getdata(data)
     X_CV = data.iloc[:, :-1]
@@ -76,29 +78,22 @@ def test3():
     rf_sigma = np.asarray([])
     gpr_res = np.asarray([])
     gpr_sigma = np.asarray([])
-    counter = 1
 
-    rkf = RepeatedKFold(n_splits=5, n_repeats=20, random_state=2652124)
+    # This will do repeated cross validation with the given k splits and n repeats
+    rkf = RepeatedKFold(n_splits=k, n_repeats=n, random_state=2652124)
     for train_index, test_index in rkf.split(data):
-        # print("TRAIN:", train_index, "TEST:", test_index)
-        print(counter)
-        counter = counter + 1
         X_train, X_test = X_CV.iloc[train_index], X_CV.iloc[test_index]
         y_train, y_test = Y_CV.iloc[train_index], Y_CV.iloc[test_index]
         GPR = gpr.GPR()
         GPR.train(X_train, y_train)
         res, sigma = GPR.getgprmetrics(X_test, y_test)
-        # np.append(gpr_res, res)
-        # np.append(gpr_sigma, sigma)
         gpr_res = np.concatenate((gpr_res, res), axis=None)
         gpr_sigma = np.concatenate((gpr_sigma, sigma), axis=None)
-        # plot(res, sigma, "GPR", 8)
         RF = rf.RF()
         RF.train(X_train, y_train)
         res, sigma = RF.getrfmetrics(X_test, y_test)
         rf_res = np.concatenate((rf_res, res), axis=None)
         rf_sigma = np.concatenate((rf_sigma, sigma), axis=None)
-        # plot(res, sigma, "RF", 8)
 
     th.plot(gpr_res, gpr_sigma, "GPR", 20)
     th.plot(rf_res, rf_sigma, "RF", 20)
@@ -107,7 +102,7 @@ def test3():
 def main():
     test1()
     test2()
-    test3()
+    test3(5, 20)
 
 
 if __name__ == "__main__":
