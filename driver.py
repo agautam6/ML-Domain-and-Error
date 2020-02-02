@@ -12,7 +12,7 @@ from package import testhelper as th
 # residual/y_std vs error/y_std for test data for both models
 def test1():
     data = io.importdata('_haijinlogfeaturesnobarrier_alldata.csv')
-    data = io.getdata(data)
+    data = io.sanitizedata(data)
     X_train, X_test, y_train, y_test = train_test_split(data.iloc[:, :-1], data.iloc[:, -1], test_size=0.3)
     GPR = gpr.GPR()
     GPR.train(X_train, y_train)
@@ -28,23 +28,23 @@ def test1():
 # tabulating domain IN/OUT
 def test2():
     data = io.importdata('_haijinlogfeaturesnobarrier_alldata_no_Pd.csv')
-    data = io.getdata(data)
+    data = io.sanitizedata(data)
     X_train = data.iloc[:, :-1]
     y_train = data.iloc[:, -1]
     GPR = gpr.GPR()
     GPR.train(X_train, y_train)
     test_data = io.importdata('_haijinlogfeatures_Pd_only.csv')
-    test_data = test_data.drop([0])
-    final_list = [i + "-" + j for i, j in zip(test_data[24].values, test_data[25].values)]
-    test_data = test_data.drop([24, 25], axis=1)
+    final_list = [i + "-" + j for i, j in zip(test_data['Material compositions 1'].values,
+                                              test_data['Material compositions 2'].values)]
+    test_data = io.sanitizedata(test_data)
     # Define GPR and RF errors
     pred, GPR_errors = GPR.predict(test_data, True)
     RF = rf.RF()
     RF.train(X_train, y_train)
     pred, RF_errors = RF.predict(test_data, True)
-    print(final_list)
-    predictions = [th.predictdomain(GPR_errors[i], RF_errors[i]) for i in range(0, 37)]
-    results = [(final_list[i], predictions[i], GPR_errors[i], RF_errors[i]) for i in range(0, 37)]
+    # print(final_list)
+    predictions = [th.predictdomain(GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
+    results = [(final_list[i], predictions[i], GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
     print(tabulate(results, headers=["Material", "In domain?", "GPR predicted error", "RF predicted error"]))
 
 
@@ -52,7 +52,7 @@ def test2():
 
 def test3(k, n):
     data = io.importdata('_haijinlogfeaturesnobarrier_alldata.csv')
-    data = io.getdata(data)
+    data = io.sanitizedata(data)
     X_CV = data.iloc[:, :-1]
     Y_CV = data.iloc[:, -1]
 
