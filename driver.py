@@ -29,36 +29,19 @@ def test1():
 def test2():
     data = io.importdata('_haijinlogfeaturesnobarrier_alldata_no_Pd.csv')
     data = io.getdata(data)
-    # X_train, X_test, y_train, y_test = train_test_split(data.iloc[:,:-1], data.iloc[:,-1], test_size=0)
     X_train = data.iloc[:, :-1]
     y_train = data.iloc[:, -1]
     GPR = gpr.GPR()
     GPR.train(X_train, y_train)
     test_data = io.importdata('_haijinlogfeatures_Pd_only.csv')
-    test_data = test_data.drop([24, 25], axis=1)
     test_data = test_data.drop([0])
+    final_list = [i + "-" + j for i, j in zip(test_data[24].values, test_data[25].values)]
+    test_data = test_data.drop([24, 25], axis=1)
     # Define GPR and RF errors
     pred, GPR_errors = GPR.predict(test_data, True)
     RF = rf.RF()
     RF.train(X_train, y_train)
     pred, RF_errors = RF.predict(test_data, True)
-    # GPR_errors = np.random.random_sample(37, )
-    # RF_errors = np.random.random_sample(37, )
-    data = io.importdatanames('_haijinlogfeatures_Pd_only.csv')
-    list = []
-    for element in data[24]:
-        list.append(element)
-    del list[0]
-    list2 = []
-    for element in data[25]:
-        list2.append(element)
-    del list2[0]
-    final_list = []
-    for i in range(0, 37):
-        first = list[i]
-        second = list2[i]
-        combined = first + "-" + second
-        final_list.append(combined)
     print(final_list)
     predictions = [th.predictdomain(GPR_errors[i], RF_errors[i]) for i in range(0, 37)]
     results = [(final_list[i], predictions[i], GPR_errors[i], RF_errors[i]) for i in range(0, 37)]
