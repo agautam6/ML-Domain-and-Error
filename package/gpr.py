@@ -12,6 +12,7 @@ class GPR:
     X_train = None
     y_train = None
     kernel = None
+    y_std_train = None
 
     def __init__(self):
         pass
@@ -21,15 +22,18 @@ class GPR:
         self.sc = StandardScaler()
         self.X_train = self.sc.fit_transform(X_train)
         self.y_train = y_train
+        y_train_temp = self.y_train.to_numpy(dtype=float)
+        self.y_std_train = statistics.stdev(y_train_temp)
         self.kernel = ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
         self.gp = GaussianProcessRegressor(kernel=self.kernel, n_restarts_optimizer=10).fit(self.X_train, self.y_train)
 
     def predict(self, x_test, retstd=True):
-        x_pred = self.sc.fit_transform(x_test)
-        return self.gp.predict(x_pred, return_std=retstd)
+        x_pred = self.sc.transform(x_test)
+        pred, std = self.gp.predict(x_pred, return_std=retstd)
+        return pred, std/self.y_std_train
 
     def getgprmetrics(self, X_test, y_test):
-        X_pred = self.sc.fit_transform(X_test)
+        X_pred = self.sc.transform(X_test)
         y_pred, sigma = self.gp.predict(X_pred, return_std=True)
         y_test1 = y_test.to_numpy(dtype=float)
         y_std = statistics.stdev(y_test1)
