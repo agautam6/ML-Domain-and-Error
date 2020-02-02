@@ -1,7 +1,8 @@
+import statistics
+
+import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
-import statistics
-import numpy as np
 
 
 class RF:
@@ -35,7 +36,7 @@ class RF:
                 preds.append(pred.predict([x_pred[x]])[0])
             error.append(statistics.stdev(preds))
         error = np.array(error)
-        return self.rf.predict(x_pred), error/self.y_std_train
+        return self.rf.predict(x_pred), error / self.y_std_train
 
     def getrfmetrics(self, X_test, y_test):
         X_pred = self.sc.transform(X_test)
@@ -50,4 +51,4 @@ class RF:
             error.append(statistics.stdev(preds))
         error = np.array(error)
         y_std = statistics.stdev(y_test1)
-        return y_residual/y_std, error/y_std
+        return y_residual / y_std, error / y_std

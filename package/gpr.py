@@ -1,8 +1,7 @@
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import (RBF, Matern, RationalQuadratic,
-                                              ExpSineSquared, DotProduct,
-                                              ConstantKernel, WhiteKernel)
 import statistics
+
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import (Matern, ConstantKernel, WhiteKernel)
 from sklearn.preprocessing import StandardScaler
 
 
@@ -30,7 +29,7 @@ class GPR:
     def predict(self, x_test, retstd=True):
         x_pred = self.sc.transform(x_test)
         pred, std = self.gp.predict(x_pred, return_std=retstd)
-        return pred, std/self.y_std_train
+        return pred, std / self.y_std_train
 
     def getgprmetrics(self, X_test, y_test):
         X_pred = self.sc.transform(X_test)
@@ -38,7 +37,7 @@ class GPR:
         y_test1 = y_test.to_numpy(dtype=float)
         y_std = statistics.stdev(y_test1)
         residual = abs(y_pred - y_test1)
-        return residual/y_std, sigma/y_std
+        return residual / y_std, sigma / y_std
 
     def printgprinfo(self, X_test=None, y_test=None):
         if self.gp is None:

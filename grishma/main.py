@@ -1,13 +1,11 @@
-import pandas as pd
+import statistics
+
 import numpy as np
+import pandas as pd
+from sklearn import metrics
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestRegressor
-from sklearn import metrics
-import statistics
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-
 
 # Getting the dataset
 dataset = pd.read_csv('_haijinlogfeaturesnobarrier_alldata.csv', error_bad_lines=False, sep=',', header=None)
@@ -49,7 +47,4 @@ for x in range(len(X_test)):
     error.append(statistics.stdev(preds))
 error = np.array(error)
 
-
 # glennfun(y_residual,error,statistics.stdev(y_test))
-
-
