@@ -17,11 +17,11 @@ def test1():
     GPR = gpr.GPR()
     GPR.train(X_train, y_train)
     res, sigma = GPR.getgprmetrics(X_test, y_test)
-    th.plot(res, sigma, "GPR", 8)
+    th.GPR_plot(res, sigma, "GPR", 8)
     RF = rf.RF()
     RF.train(X_train, y_train)
     res, sigma = RF.getrfmetrics(X_test, y_test)
-    th.plot(res, sigma, "RF", 8)
+    th.RF_plot(res, sigma, "RF", 8)
 
 
 # Test Description: training GPR and RF models from 'alldata' or 'alldata_no_Pd', making predictions for 'Pd_only' and
@@ -78,8 +78,8 @@ def test3(k, n):
         rf_res = np.concatenate((rf_res, res), axis=None)
         rf_sigma = np.concatenate((rf_sigma, sigma), axis=None)
 
-    th.plot(gpr_res, gpr_sigma, "GPR", 20)
-    th.plot(rf_res, rf_sigma, "RF", 20)
+    th.GPR_plot(gpr_res, gpr_sigma, "GPR", 20)
+    th.RF_plot(rf_res, rf_sigma, "RF", 20)
 
 
 def main():
