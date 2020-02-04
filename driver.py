@@ -42,6 +42,7 @@ def test2():
     RF = rf.RF()
     RF.train(X_train, y_train)
     pred, RF_errors = RF.predict(test_data, True)
+    RF_errors = 0.65*RF_errors
     # print(final_list)
     predictions = [th.predictdomain(GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
     results = [(final_list[i], predictions[i], GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
