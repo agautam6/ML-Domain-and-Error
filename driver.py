@@ -84,9 +84,9 @@ def test3(k, n):
 
 
 def main():
-    # test1()
+    test1()
     test2()
-    # test3(5, 20)
+    test3(5, 20)
 
 
 if __name__ == "__main__":
