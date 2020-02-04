@@ -11,7 +11,7 @@ from package import testhelper as th
 # Test Description: training GPR and RF models from 'alldata' (70% train 30% test) and plotting
 # residual/y_std vs error/y_std for test data for both models
 def test1():
-    data = io.importdata('_haijinlogfeaturesnobarrier_alldata.csv')
+    data = io.importdata('data/_haijinlogfeaturesnobarrier_alldata.csv')
     data = io.sanitizedata(data)
     X_train, X_test, y_train, y_test = train_test_split(data.iloc[:, :-1], data.iloc[:, -1], test_size=0.3)
     GPR = gpr.GPR()
@@ -27,13 +27,13 @@ def test1():
 # Test Description: training GPR and RF models from 'alldata' or 'alldata_no_Pd', making predictions for 'Pd_only' and
 # tabulating domain IN/OUT
 def test2():
-    data = io.importdata('_haijinlogfeaturesnobarrier_alldata_no_Pd.csv')
+    data = io.importdata('data/_haijinlogfeaturesnobarrier_alldata_no_Pd.csv')
     data = io.sanitizedata(data)
     X_train = data.iloc[:, :-1]
     y_train = data.iloc[:, -1]
     GPR = gpr.GPR()
     GPR.train(X_train, y_train)
-    test_data = io.importdata('_haijinlogfeatures_Pd_only.csv')
+    test_data = io.importdata('data/_haijinlogfeatures_Pd_only.csv')
     final_list = [i + "-" + j for i, j in zip(test_data['Material compositions 1'].values,
                                               test_data['Material compositions 2'].values)]
     test_data = io.sanitizedata(test_data)
@@ -52,7 +52,7 @@ def test2():
 # Test for getting plots using cross validation
 
 def test3(k, n):
-    data = io.importdata('_haijinlogfeaturesnobarrier_alldata.csv')
+    data = io.importdata('data/_haijinlogfeaturesnobarrier_alldata.csv')
     data = io.sanitizedata(data)
     X_CV = data.iloc[:, :-1]
     Y_CV = data.iloc[:, -1]
@@ -84,9 +84,9 @@ def test3(k, n):
 
 
 def main():
-    test1()
+    # test1()
     test2()
-    test3(5, 20)
+    # test3(5, 20)
 
 
 if __name__ == "__main__":
