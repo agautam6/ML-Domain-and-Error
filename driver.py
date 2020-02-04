@@ -46,7 +46,7 @@ def test2():
     # print(final_list)
     predictions = [th.predictdomain(GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
     results = [(final_list[i], predictions[i], GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
-    print(tabulate(results, headers=["Material", "In domain?", "GPR predicted error", "RF predicted error"]))
+    print(tabulate(results, headers=["Material", "In domain?", "GPR predicted error", "0.65*RF predicted error"]))
 
 
 # Test for getting plots using cross validation
