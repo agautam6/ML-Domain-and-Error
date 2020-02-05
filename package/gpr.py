@@ -46,4 +46,4 @@ class GPR:
         print(self.gp.kernel_)
         print(self.gp.log_marginal_likelihood(self.gp.kernel_.theta))
         if X_test is not None and y_test is not None:
-            print(self.gp.score(X_test, y_test))
+            print(self.gp.score(self.sc.transform(X_test), y_test))
