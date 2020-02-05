@@ -134,11 +134,11 @@ def RF_plot(res, sigma, model_name, number_of_bins):
     model = LinearRegression(fit_intercept=False)
     model.fit(binned_model_errors[0:cutoff_bin, np.newaxis],
               RMS_abs_res[0:cutoff_bin])  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
-    xfit = binned_model_errors
+    xfit = binned_model_errors[0:cutoff_bin]
     yfit = model.predict(xfit[:, np.newaxis])
 
     # Calculate r^2 value
-    r_squared = r2_score(RMS_abs_res, yfit)
+    r_squared = r2_score(RMS_abs_res[0:cutoff_bin], yfit)
     # Calculate slope
     slope = model.coef_
 
