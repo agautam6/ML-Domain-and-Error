@@ -108,6 +108,9 @@ def test4(k, n):
 
 
 def main():
+    test1()
+    test2()
+    test3(5, 20)
     test4(5, 1)
     # test4(5, 2)
     # test4(5, 5)
