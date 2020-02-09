@@ -26,19 +26,22 @@ class RF:
                                                                                                 self.y_train)
 
     # Note: Not using this predict function for RF
-    # def predict(self, x_test, retstd=True):
-    #     x_pred = self.sc.transform(x_test)
-    #     if retstd is False:
-    #         return self.rf.predict(x_pred)
-    #     error = []
-    #     preds = []
-    #     for x in range(len(x_pred)):
-    #         preds = []
-    #         for pred in self.rf.estimators_:
-    #             preds.append(pred.predict([x_pred[x]])[0])
-    #         error.append(statistics.stdev(preds))
-    #     error = np.array(error)
-    #     return self.rf.predict(x_pred), error / self.y_std_train
+
+    # This is used in test2() - for making domain in/out predictions. Difference b/w this and getrfmetrics is that
+    # it returns predicted value and error while getrfmetrics returns residuals and error
+    def predict(self, x_test, retstd=True):
+        x_pred = self.sc.transform(x_test)
+        if retstd is False:
+            return self.rf.predict(x_pred)
+        error = []
+        preds = []
+        for x in range(len(x_pred)):
+            preds = []
+            for pred in self.rf.estimators_:
+                preds.append(pred.predict([x_pred[x]])[0])
+            error.append(statistics.stdev(preds))
+        error = np.array(error)
+        return self.rf.predict(x_pred), error / self.y_std_train
 
     def getrfmetrics(self, X_test, y_test):
         X_pred = self.sc.transform(X_test)
