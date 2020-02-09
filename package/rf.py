@@ -22,21 +22,23 @@ class RF:
         self.y_train = y_train
         y_train_temp = self.y_train.to_numpy(dtype=float)
         self.y_std_train = statistics.stdev(y_train_temp)
-        self.rf = RandomForestRegressor(n_estimators=15, random_state=8).fit(self.X_train, self.y_train)
+        self.rf = RandomForestRegressor(n_estimators=145, max_depth=30, min_samples_leaf=1).fit(self.X_train,
+                                                                                                self.y_train)
 
-    def predict(self, x_test, retstd=True):
-        x_pred = self.sc.transform(x_test)
-        if retstd is False:
-            return self.rf.predict(x_pred)
-        error = []
-        preds = []
-        for x in range(len(x_pred)):
-            preds = []
-            for pred in self.rf.estimators_:
-                preds.append(pred.predict([x_pred[x]])[0])
-            error.append(statistics.stdev(preds))
-        error = np.array(error)
-        return self.rf.predict(x_pred), error / self.y_std_train
+    # Note: Not using this predict function for RF
+    # def predict(self, x_test, retstd=True):
+    #     x_pred = self.sc.transform(x_test)
+    #     if retstd is False:
+    #         return self.rf.predict(x_pred)
+    #     error = []
+    #     preds = []
+    #     for x in range(len(x_pred)):
+    #         preds = []
+    #         for pred in self.rf.estimators_:
+    #             preds.append(pred.predict([x_pred[x]])[0])
+    #         error.append(statistics.stdev(preds))
+    #     error = np.array(error)
+    #     return self.rf.predict(x_pred), error / self.y_std_train
 
     def getrfmetrics(self, X_test, y_test):
         X_pred = self.sc.transform(X_test)
@@ -51,4 +53,6 @@ class RF:
             error.append(statistics.stdev(preds))
         error = np.array(error)
         y_std = statistics.stdev(y_test1)
-        return y_residual / y_std, error / y_std
+        # return y_residual / self.y_std_train, error / self.y_std_train
+        # Using the stdDev from the paper.
+        return y_residual / 0.4738, error / 0.4738

@@ -3,8 +3,8 @@ from sklearn.model_selection import train_test_split, RepeatedKFold
 from tabulate import tabulate
 
 from package import gpr
-from package import rf
 from package import io
+from package import rf
 from package import testhelper as th
 
 
@@ -42,7 +42,7 @@ def test2():
     RF = rf.RF()
     RF.train(X_train, y_train)
     pred, RF_errors = RF.predict(test_data, True)
-    RF_errors = 0.65*RF_errors
+    RF_errors = 0.65 * RF_errors
     # print(final_list)
     predictions = [th.predictdomain(GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
     results = [(final_list[i], predictions[i], GPR_errors[i], RF_errors[i]) for i in range(0, len(test_data))]
@@ -83,10 +83,35 @@ def test3(k, n):
     th.RF_plot(rf_res, rf_sigma, "RF", 20)
 
 
+# Test for RF with allFeatures dataset and dropping columns “E_regression”, “predict_Pt” and “Hop activation barrier”
+def test4(k, n):
+    data = io.importdata('data/Diffusion_Data_allfeatures.csv')
+    data = io.sanitizedata(data)
+    X_RF_CV = data.iloc[:, 1:]
+    Y_RF_CV = data.iloc[:, 0]
+
+    rf_res = np.asarray([])
+    rf_sigma = np.asarray([])
+
+    # This will do repeated cross validation with the given k splits and n repeats
+    rkf = RepeatedKFold(n_splits=k, n_repeats=n, random_state=2652124)
+    for train_index, test_index in rkf.split(data):
+        X_train, X_test = X_RF_CV.iloc[train_index], X_RF_CV.iloc[test_index]
+        y_train, y_test = Y_RF_CV.iloc[train_index], Y_RF_CV.iloc[test_index]
+        RF = rf.RF()
+        RF.train(X_train, y_train)
+        res, sigma = RF.getrfmetrics(X_test, y_test)
+        rf_res = np.concatenate((rf_res, res), axis=None)
+        rf_sigma = np.concatenate((rf_sigma, sigma), axis=None)
+
+    th.RF_plot(rf_res, rf_sigma, "RF", 20)
+
+
 def main():
-    test1()
-    test2()
-    test3(5, 20)
+    test4(5, 1)
+    # test4(5, 2)
+    # test4(5, 5)
+    # test4(5, 50)
 
 
 if __name__ == "__main__":
