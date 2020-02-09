@@ -1,7 +1,7 @@
 import statistics
 
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import (Matern, ConstantKernel, WhiteKernel)
+from sklearn.gaussian_process.kernels import (Matern, ConstantKernel, WhiteKernel, RBF)
 from sklearn.preprocessing import StandardScaler
 
 
@@ -25,6 +25,9 @@ class GPR:
         self.y_std_train = statistics.stdev(y_train_temp)
         self.kernel = ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
         self.gp = GaussianProcessRegressor(kernel=self.kernel, n_restarts_optimizer=10).fit(self.X_train, self.y_train)
+        # Ryan's kernel
+        # self.kernel = ConstantKernel()*RBF()
+        # self.gp = GaussianProcessRegressor(kernel=self.kernel, alpha=0.00001, n_restarts_optimizer=10, normalize_y=False).fit(self.X_train, self.y_train)
 
     def predict(self, x_test, retstd=True):
         x_pred = self.sc.transform(x_test)
