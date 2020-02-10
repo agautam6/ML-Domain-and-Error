@@ -1,0 +1,52 @@
+Matern vs RBF for PV - 5 fold CV with 500 random points
+
+
+C:\Users\anupr\PycharmProjects\FML\venv\Scripts\python.exe C:/Users/anupr/OneDrive/Desktop/Git/ML-Domain-and-Error/testPV_GPR.py
+178**2 + 108**2 * Matern(length_scale=8.58, nu=1.5) + WhiteKernel(noise_level=14.4)
+-2053.8674870869927
+0.7988014307534143
+119**2 * RBF(length_scale=5.19)
+-2431423.9560493613
+0.7809638167560659
+171**2 + 107**2 * Matern(length_scale=7.84, nu=1.5) + WhiteKernel(noise_level=9.13)
+-2072.177912521077
+0.8992995500493471
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([-6.11950457, 19.07859856]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 188, 'nit': 23, 'warnflag': 2}
+  ConvergenceWarning)
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([ 4.57005228, -0.        ]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 67, 'nit': 4, 'warnflag': 2}
+  ConvergenceWarning)
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([ 1.42427559, -0.41171428]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 66, 'nit': 21, 'warnflag': 2}
+  ConvergenceWarning)
+121**2 * RBF(length_scale=5.1)
+-3161183.0559658366
+0.8629429226298154
+172**2 + 117**2 * Matern(length_scale=9.43, nu=1.5) + WhiteKernel(noise_level=7.67)
+-2041.6614936895942
+0.8299736806799355
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([ 179.87645575, -443.24578798]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 21, 'nit': 0, 'warnflag': 2}
+  ConvergenceWarning)
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([0.09538957, 1.84261978]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 78, 'nit': 19, 'warnflag': 2}
+  ConvergenceWarning)
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([-0.66834085, -0.        ]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 77, 'nit': 6, 'warnflag': 2}
+  ConvergenceWarning)
+123**2 * RBF(length_scale=5.52)
+-1228290.4840000547
+0.7975332830936649
+181**2 + 114**2 * Matern(length_scale=10.7, nu=1.5) + WhiteKernel(noise_level=207)
+-2048.800636305039
+0.7449401473171597
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([ 6.26415838, -0.        ]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 43, 'nit': 1, 'warnflag': 2}
+  ConvergenceWarning)
+118**2 * RBF(length_scale=5.13)
+-1934945.5848509802
+0.7325196521234969
+164**2 + 112**2 * Matern(length_scale=8.67, nu=1.5) + WhiteKernel(noise_level=5.74)
+-2050.2562592917775
+0.8538547607189708
+C:\Users\anupr\PycharmProjects\FML\venv\lib\site-packages\sklearn\gaussian_process\gpr.py:469: ConvergenceWarning: fmin_l_bfgs_b terminated abnormally with the  state: {'grad': array([ 0.8787475, -0.       ]), 'task': b'ABNORMAL_TERMINATION_IN_LNSRCH', 'funcalls': 58, 'nit': 6, 'warnflag': 2}
+  ConvergenceWarning)
+118**2 * RBF(length_scale=5.18)
+-1480174.4545938643
+0.7899564908463267
+
+Process finished with exit code 0
