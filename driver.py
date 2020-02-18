@@ -15,11 +15,11 @@ def test1():
     data = io.sanitizedata(data)
     X_train, X_test, y_train, y_test = train_test_split(data.iloc[:, :-1], data.iloc[:, -1], test_size=0.3)
     GPR = gpr.GPR()
-    GPR.train(X_train, y_train)
+    GPR.train(X_train, y_train, std=0.4738)
     res, sigma = GPR.getgprmetrics(X_test, y_test)
     th.GPR_plot(res, sigma, "GPR", 8)
     RF = rf.RF()
-    RF.train(X_train, y_train)
+    RF.train(X_train, y_train, std=0.4738)
     res, sigma = RF.getrfmetrics(X_test, y_test)
     th.RF_plot(res, sigma, "RF", 8)
 
@@ -32,7 +32,7 @@ def test2():
     X_train = data.iloc[:, :-1]
     y_train = data.iloc[:, -1]
     GPR = gpr.GPR()
-    GPR.train(X_train, y_train)
+    GPR.train(X_train, y_train, std=0.4738)
     test_data = io.importdata('data/_haijinlogfeatures_Pd_only.csv')
     final_list = [i + "-" + j for i, j in zip(test_data['Material compositions 1'].values,
                                               test_data['Material compositions 2'].values)]
@@ -40,7 +40,7 @@ def test2():
     # Define GPR and RF errors
     pred, GPR_errors = GPR.predict(test_data, True)
     RF = rf.RF()
-    RF.train(X_train, y_train)
+    RF.train(X_train, y_train, std=0.4738)
     pred, RF_errors = RF.predict(test_data, True)
     RF_errors = 0.65 * RF_errors
     # print(final_list)
@@ -69,12 +69,12 @@ def test3(k, n):
         X_train, X_test = X_CV.iloc[train_index], X_CV.iloc[test_index]
         y_train, y_test = Y_CV.iloc[train_index], Y_CV.iloc[test_index]
         GPR = gpr.GPR()
-        GPR.train(X_train, y_train)
+        GPR.train(X_train, y_train, std=0.4738)
         res, sigma = GPR.getgprmetrics(X_test, y_test)
         gpr_res = np.concatenate((gpr_res, res), axis=None)
         gpr_sigma = np.concatenate((gpr_sigma, sigma), axis=None)
         RF = rf.RF()
-        RF.train(X_train, y_train)
+        RF.train(X_train, y_train, std=0.4738)
         res, sigma = RF.getrfmetrics(X_test, y_test)
         rf_res = np.concatenate((rf_res, res), axis=None)
         rf_sigma = np.concatenate((rf_sigma, sigma), axis=None)
@@ -99,7 +99,7 @@ def test4(k, n):
         X_train, X_test = X_RF_CV.iloc[train_index], X_RF_CV.iloc[test_index]
         y_train, y_test = Y_RF_CV.iloc[train_index], Y_RF_CV.iloc[test_index]
         RF = rf.RF()
-        RF.train(X_train, y_train)
+        RF.train(X_train, y_train, std=0.4738)
         res, sigma = RF.getrfmetrics(X_test, y_test)
         rf_res = np.concatenate((rf_res, res), axis=None)
         rf_sigma = np.concatenate((rf_sigma, sigma), axis=None)

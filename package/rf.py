@@ -15,13 +15,16 @@ class RF:
     def __init__(self):
         pass
 
-    def train(self, X_train, y_train):
+    def train(self, X_train, y_train, std=None):
         # Scale features
         self.sc = StandardScaler()
         self.X_train = self.sc.fit_transform(X_train)
         self.y_train = y_train
         y_train_temp = self.y_train.to_numpy(dtype=float)
-        self.y_std_train = statistics.stdev(y_train_temp)
+        if std is None:
+            self.y_std_train = statistics.stdev(y_train_temp)
+        else:
+            self.y_std_train = std
         self.rf = RandomForestRegressor(n_estimators=145, max_depth=30, min_samples_leaf=1).fit(self.X_train,
                                                                                                 self.y_train)
 
@@ -56,6 +59,6 @@ class RF:
             error.append(statistics.stdev(preds))
         error = np.array(error)
         y_std = statistics.stdev(y_test1)
-        # return y_residual / self.y_std_train, error / self.y_std_train
+        return y_residual / self.y_std_train, error / self.y_std_train
         # Using the stdDev from the paper.
-        return y_residual / 0.4738, error / 0.4738
+        # return y_residual / 0.4738, error / 0.4738

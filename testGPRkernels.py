@@ -11,8 +11,8 @@ for train_index, test_index in rkf.split(data):
     X_train, X_test = X_CV.iloc[train_index], X_CV.iloc[test_index]
     y_train, y_test = Y_CV.iloc[train_index], Y_CV.iloc[test_index]
     GPR1 = gpr.GPR()
-    GPR1.train(X_train, y_train)
+    GPR1.train(X_train, y_train, std=0.4738)
     GPR1.printgprinfo(X_test, y_test)
     GPR2 = gpr.GPR()
-    GPR2.train(X_train, y_train, kernelchoice=1)
+    GPR2.train(X_train, y_train, std=0.4738, kernelchoice=1)
     GPR2.printgprinfo(X_test, y_test)

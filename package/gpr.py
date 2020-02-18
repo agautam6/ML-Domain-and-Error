@@ -16,13 +16,16 @@ class GPR:
     def __init__(self):
         pass
 
-    def train(self, X_train, y_train, kernelchoice=0):
+    def train(self, X_train, y_train, std=None, kernelchoice=0):
         # Scale features
         self.sc = StandardScaler()
         self.X_train = self.sc.fit_transform(X_train)
         self.y_train = y_train
         y_train_temp = self.y_train.to_numpy(dtype=float)
-        self.y_std_train = statistics.stdev(y_train_temp)
+        if std is None:
+            self.y_std_train = statistics.stdev(y_train_temp)
+        else:
+            self.y_std_train = std
         if kernelchoice is 0:
             self.kernel = ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
             self.gp = GaussianProcessRegressor(kernel=self.kernel, n_restarts_optimizer=10).fit(self.X_train, self.y_train)
