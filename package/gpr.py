@@ -40,9 +40,10 @@ class GPR:
         X_pred = self.sc.transform(X_test)
         y_pred, sigma = self.gp.predict(X_pred, return_std=True)
         y_test1 = y_test.to_numpy(dtype=float)
-        y_std = statistics.stdev(y_test1)
+        # y_std = statistics.stdev(y_test1)
         residual = abs(y_pred - y_test1)
-        return residual / y_std, sigma / y_std
+        # return residual / y_std, sigma / y_std
+        return residual / self.y_std_train, sigma / self.y_std_train
 
     def printgprinfo(self, X_test=None, y_test=None):
         if self.gp is None:
