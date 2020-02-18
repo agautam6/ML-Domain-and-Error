@@ -4,7 +4,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
 
-def GPR_plot(res, sigma, model_name, number_of_bins):
+def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
     # Define input data -- divide by standard deviation
     # model_errors = sigma / stdev
     # abs_res = res / stdev
@@ -18,7 +18,11 @@ def GPR_plot(res, sigma, model_name, number_of_bins):
     plt.title("%s Absolute Residuals vs. Model Errors" % (model_name))
     plt.plot(model_errors, abs_res, '.', color='blue');
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig("{}_plot1.png".format(filename))
+        plt.clf()
 
     # Histogram of RF error bin counts
     plt.hist(model_errors, bins=number_of_bins, color='blue', edgecolor='black')
@@ -26,7 +30,11 @@ def GPR_plot(res, sigma, model_name, number_of_bins):
     plt.ylabel("Counts")
     plt.title("%s Bin Counts" % (model_name));
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig("{}_plot2.png".format(filename))
+        plt.clf()
 
     # Set bins for calculating RMS
     upperbound = np.amax(model_errors)
@@ -74,9 +82,14 @@ def GPR_plot(res, sigma, model_name, number_of_bins):
     plt.plot(binned_model_errors, RMS_abs_res, 'o', color='blue')
     plt.plot(xfit, yfit);
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig("{}_plot3.png".format(filename))
+        plt.clf()
 
-def RF_plot(res, sigma, model_name, number_of_bins):
+
+def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
     # Define input data -- divide by standard deviation
     # model_errors = sigma / stdev
     # abs_res = res / stdev
@@ -90,7 +103,11 @@ def RF_plot(res, sigma, model_name, number_of_bins):
     plt.title("%s Absolute Residuals vs. Model Errors" % (model_name))
     plt.plot(model_errors, abs_res, '.', color='blue');
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig("{}_plot1.png".format(filename))
+        plt.clf()
 
     # Histogram of RF error bin counts
     plt.hist(model_errors, bins=number_of_bins, color='blue', edgecolor='black')
@@ -98,7 +115,11 @@ def RF_plot(res, sigma, model_name, number_of_bins):
     plt.ylabel("Counts")
     plt.title("%s Bin Counts" % (model_name));
 
-    plt.show()
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig("{}_plot2.png".format(filename))
+        plt.clf()
 
     # Set bins for calculating RMS
     upperbound = np.amax(model_errors)
@@ -153,12 +174,15 @@ def RF_plot(res, sigma, model_name, number_of_bins):
     plt.plot(binned_model_errors[cutoff_bin:], RMS_abs_res[cutoff_bin:], 'o', color='red')  
     plt.plot(xfit, yfit);
 
-    plt.show()
-
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig("{}_plot3.png".format(filename))
+        plt.clf()
 
 
 def predictdomain(GPR_error, RF_error):
-    if GPR_error < 0.8 and RF_error < 0.8:
+    if GPR_error < 0.8 and RF_error < 0.8:  
         return 1
     else:
         return 0
