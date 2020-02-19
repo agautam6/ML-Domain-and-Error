@@ -1,0 +1,17 @@
+Material         Group       In domain?    GPR predicted error    0.89066261*RF predicted error
+---------------  --------  ------------  ---------------------  -------------------------------
+Ba8Fe2V6O24      frequent             1               0.527395                         0.359695
+La4Y4Co4Mn4O24   frequent             1               0.593111                         0.348631
+Pr8Ti6V2O24      frequent             1               0.34419                          0.273026
+Sr8Cr4Mn4O24     frequent             1               0.369417                         0.426216
+Y6Sr2V8O24       frequent             1               0.181786                         0.15666
+Ca4Y4Ni4Sc4O24   moderate             0               1.21362                          0.884931
+Ca8Mg2Ti6O24     moderate             0               0.985623                         1.01043
+Dy6Ba2Ga4Mg4O24  moderate             0               0.875044                         0.892136
+Gd2Sr6Ni8O24     moderate             1               0.490027                         0.667193
+Y6Ca2Co6Cr2O24   moderate             1               0.397076                         0.338939
+Bi8Pt4Pd4O24     rare                 0               1.21955                          0.999059
+Ce8Re8O24        rare                 0               1.05678                          0.834345
+Dy4Zn4Al4Zr4O24  rare                 0               1.0447                           0.894807
+Dy6Nd2Ru8O24     rare                 0               0.963451                         1.0442
+La2Pr6Ge4Sn4O24  rare                 0               0.859686                         0.505322
