@@ -1,4 +1,7 @@
 import pandas as pd
+import pickle
+from datetime import datetime as dt
+import pytz as tz
 
 
 # Fetch data with filename
@@ -20,3 +23,19 @@ def sanitizedata(data, user_list=None):
         if c in data.columns:
             data = data.drop(columns=[c])
     return data
+
+
+def getModelSaveFileName(filename_from_user):
+    return filename_from_user.replace("/", "_").replace(".", "_") + "_" \
+           + dt.now(tz=tz.timezone('America/Chicago')).strftime("%m-%d-%y_%H-%M-%S")
+
+
+def savemodelobj(obj, filename_from_user=''):
+    with open(getModelSaveFileName(filename_from_user), 'wb') as out:
+        pickle.dump(obj, out, pickle.HIGHEST_PROTOCOL)
+
+
+def loadmodelobj(filename_from_user):
+    with open(filename_from_user, 'rb') as inp:
+        obj = pickle.load(inp)
+    return obj
