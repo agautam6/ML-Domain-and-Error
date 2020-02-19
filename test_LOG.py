@@ -27,6 +27,5 @@ for train_index, test_index in rfk.split(X, Y, groups):
     res, sigma = RF.getrfmetrics(X_test, y_test)
     rf_res = np.concatenate((rf_res, res), axis=None)
     rf_sigma = np.concatenate((rf_sigma, sigma), axis=None)
-    print('Hey')
 
 th.RF_plot(rf_res, rf_sigma, "RF", 20)
