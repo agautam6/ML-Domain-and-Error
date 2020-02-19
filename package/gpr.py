@@ -16,7 +16,7 @@ class GPR:
     def __init__(self):
         pass
 
-    def train(self, X_train, y_train, std=None, kernelchoice=0):
+    def train(self, X_train, y_train, std=None, kernelchoice=0, userkernel=None, optimizer_restarts=10):
         # Scale features
         self.sc = StandardScaler()
         self.X_train = self.sc.fit_transform(X_train)
@@ -28,11 +28,21 @@ class GPR:
             self.y_std_train = std
         if kernelchoice is 0:
             self.kernel = ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
-            self.gp = GaussianProcessRegressor(kernel=self.kernel, n_restarts_optimizer=10).fit(self.X_train, self.y_train)
+            self.gp = GaussianProcessRegressor(kernel=self.kernel,
+                                               n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
         elif kernelchoice is 1:
             # Ryan's kernel
             self.kernel = ConstantKernel()*RBF()
-            self.gp = GaussianProcessRegressor(kernel=self.kernel, alpha=0.00001, n_restarts_optimizer=10, normalize_y=False).fit(self.X_train, self.y_train)
+            self.gp = GaussianProcessRegressor(kernel=self.kernel,
+                                               alpha=0.00001,
+                                               n_restarts_optimizer=optimizer_restarts,
+                                               normalize_y=False).fit(self.X_train, self.y_train)
+
+        elif kernelchoice is -1 and userkernel is not None:
+            # User defined kernel
+            self.kernel = userkernel
+            self.gp = GaussianProcessRegressor(kernel=self.kernel,
+                                               n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
 
     def predict(self, x_test, retstd=True):
         x_pred = self.sc.transform(x_test)
