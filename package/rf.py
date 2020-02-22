@@ -28,6 +28,19 @@ class RF:
         self.rf = RandomForestRegressor(n_estimators=145, max_depth=30, min_samples_leaf=1).fit(self.X_train,
                                                                                                 self.y_train)
 
+    def train_synth(self, X_train, y_train, std=None):
+        # Scale features
+        self.sc = StandardScaler()
+        self.X_train = self.sc.fit_transform(X_train)
+        self.y_train = y_train
+        y_train_temp = self.y_train
+        if std is None:
+            self.y_std_train = statistics.stdev(y_train_temp)
+        else:
+            self.y_std_train = std
+        self.rf = RandomForestRegressor(n_estimators=145, max_depth=30, min_samples_leaf=1).fit(self.X_train,
+                                                                                                self.y_train)
+    
     # Note: Not using this predict function for RF
 
     # This is used in test2() - for making domain in/out predictions. Difference b/w this and getrfmetrics is that
