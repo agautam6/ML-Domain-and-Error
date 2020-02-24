@@ -16,6 +16,8 @@ gpr_res = np.asarray([])
 gpr_sigma = np.asarray([])
 rkf = RepeatedKFold(n_splits=5, n_repeats=1, random_state=2652124)
 
+gprsavedkernel = io.loadmodelobj('models/GPR_data_PVstability_Weipaper_alldata_featureselected_csv_02-18-20_22-26-49')\
+    .getGPRkernel()
 ctr = 0
 for train_index, test_index in rkf.split(data):
     print("GPR: {}".format(ctr))
@@ -23,7 +25,7 @@ for train_index, test_index in rkf.split(data):
     X_train, X_test = X_CV.iloc[train_index], X_CV.iloc[test_index]
     y_train, y_test = Y_CV.iloc[train_index], Y_CV.iloc[test_index]
     GPR = gpr.GPR()
-    GPR.train(X_train, y_train, std=y_std)
+    GPR.train(X_train, y_train, std=y_std, userkernel=gprsavedkernel, optimizer_restarts=0)
     res, sigma = GPR.getgprmetrics(X_test, y_test)
     gpr_res = np.concatenate((gpr_res, res), axis=None)
     gpr_sigma = np.concatenate((gpr_sigma, sigma), axis=None)
