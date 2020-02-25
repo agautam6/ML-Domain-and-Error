@@ -17,7 +17,7 @@ y_std = statistics.stdev(y_all.to_numpy(dtype=float))
 in_domain = []
 out_domain = []
 
-rs = ShuffleSplit(n_splits=5, test_size=.2, random_state=0)
+rs = ShuffleSplit(n_splits=10, test_size=.2, random_state=0)
 for train_index, test_index in rs.split(X_all):
     X_train, X_test = X_all.iloc[train_index], X_all.iloc[test_index]
     y_train, y_test = y_all.iloc[train_index], y_all.iloc[test_index]
