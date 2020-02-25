@@ -15,10 +15,12 @@ y_all = data.iloc[:, 0]
 y_std = statistics.stdev(y_all.to_numpy(dtype=float))
 
 in_domain = []
-out_domain = []
-
+out_domain = [[], [], []]
+count = 0
 rs = ShuffleSplit(n_splits=10, test_size=.2, random_state=0)
 for train_index, test_index in rs.split(X_all):
+    print(count)
+    count += 1
     X_train, X_test = X_all.iloc[train_index], X_all.iloc[test_index]
     y_train, y_test = y_all.iloc[train_index], y_all.iloc[test_index]
     GPR = gpr.GPR()
@@ -35,14 +37,15 @@ for train_index, test_index in rs.split(X_all):
         if predictions[i] is 1:
             in_domain.append(residual_by_std/predicted_error)
         else:
-            out_domain.append(residual_by_std/predicted_error)
+            out_domain[th.getcontribution(GPR_errors[i], RF_errors[i])-1].append(residual_by_std/predicted_error)
 
 plt.hist(in_domain)
 plt.ylabel('Counts')
 plt.xlabel('RF absolute residual / RF predicted error')
 plt.savefig("in_domain.png")
 plt.clf()
-plt.hist(out_domain)
+plt.hist(out_domain, stacked=True, label=['GPR', 'RF', 'both'])
+plt.legend(prop={'size': 10})
 plt.ylabel('Counts')
 plt.xlabel('RF absolute residual / RF predicted error')
 plt.savefig("out_domain.png")
