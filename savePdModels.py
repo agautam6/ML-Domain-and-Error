@@ -1,4 +1,4 @@
-from package import gpr, io, rf, testhelper as th
+from package import gpr, io, rf
 import statistics
 trainfile = 'data/Diffusion_Data_allfeatures.csv'
 data = io.importdata(trainfile)
