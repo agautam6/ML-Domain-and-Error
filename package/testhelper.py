@@ -186,3 +186,14 @@ def predictdomain(GPR_error, RF_error):
         return 1
     else:
         return 0
+
+
+def getcontribution(GPR_error, RF_error):
+    if GPR_error < 0.8 and RF_error < 0.8:
+        return 0
+    elif RF_error < 0.8 <= GPR_error:
+        return 1
+    elif GPR_error < 0.8 <= RF_error:
+        return 2
+    else:
+        return 3
