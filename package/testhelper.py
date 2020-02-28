@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
+import scipy.stats as stats
+import math
+from matplotlib.ticker import PercentFormatter
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -197,3 +200,33 @@ def getcontribution(GPR_error, RF_error):
         return 2
     else:
         return 3
+
+
+# Expects non-empty 'data'
+def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None, _xlabel=None, _ylabel=None, _title=None):
+    # _weights = None
+    if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
+        # if len(data) is not 0:
+        #     _weights = [1 / len(data)] * len(data)
+        (mu, sigma) = stats.norm.fit(data)
+    else:
+        # total = 0
+        # for i in range(0, len(data)):
+        #     total += len(data[i])
+        # if total is not 0:
+        #     _weights = w = [[1 / total] * len(data[i]) for i in range(0, len(data))]
+        (mu, sigma) = stats.norm.fit([val for sublist in data for val in sublist])
+    # n, bins, patches = plt.hist(data, weights=_weights, label=_label, stacked=_stacked)
+    n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked)
+    x = np.linspace(-6, 6, 1000)
+    plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
+    plt.plot(x, stats.norm.pdf(x, mu, sigma), label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
+    plt.ylabel(_ylabel)
+    plt.xlabel(_xlabel)
+    plt.title(_title)
+    plt.legend(loc='best', frameon=False, prop={'size': 6})
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig("{}.png".format(filename))
+        plt.clf()
