@@ -46,14 +46,14 @@ for train_index, test_index in rs.split(X_all):
             th.plotrstatwithgaussian(in_domain, _label=['GPR and RF'],
                                      _xlabel='RF residual / RF predicted error',
                                      _ylabel='Normalized Counts', _title='in-domain PV data {}-iterations'.format(count),
-                                     filename='in_domain_Rstat_PV_{}iterations'.format(count))
+                                     filename='in_domain_Rstat_PV_{}iterations'.format(count), _bincount=30)
         else:
             print('{} iterations, No points in-domain'.format(count))
         if len(out_domain[0]) + len(out_domain[1]) + len(out_domain[2]) is not 0:
             th.plotrstatwithgaussian(out_domain, _label=['GPR', 'RF', 'both'],
                                      _xlabel='RF residual / RF predicted error',
                                      _ylabel='Normalized Counts', _title='out-domain PV data {}-iterations'.format(count),
-                                     filename='out_domain_Rstat_PV_{}iterations'.format(count))
+                                     filename='out_domain_Rstat_PV_{}iterations'.format(count), _bincount=30)
         else:
             print('{} iterations, No points out-domain'.format(count))
     count += 1
