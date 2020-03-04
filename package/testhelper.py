@@ -1,10 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as stats
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
-import scipy.stats as stats
-import math
-from matplotlib.ticker import PercentFormatter
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -174,7 +172,7 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
     plt.text(0.2, 0.8, 'r^2 = %f' % (r_squared))
     plt.text(0.2, 0.7, 'slope = %f' % (slope))
     plt.plot(binned_model_errors[0:cutoff_bin], RMS_abs_res[0:cutoff_bin], 'o', color='blue')
-    plt.plot(binned_model_errors[cutoff_bin:], RMS_abs_res[cutoff_bin:], 'o', color='red')  
+    plt.plot(binned_model_errors[cutoff_bin:], RMS_abs_res[cutoff_bin:], 'o', color='red')
     plt.plot(xfit, yfit);
 
     if filename is None:
@@ -185,7 +183,14 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
 
 
 def predictdomain(GPR_error, RF_error):
-    if GPR_error < 0.8 and RF_error < 0.8:  
+    if GPR_error < 0.8 and RF_error < 0.8:
+        return 1
+    else:
+        return 0
+
+
+def predictdomainWithThreshold(GPR_error, RF_error, threshold):
+    if GPR_error < threshold and RF_error < threshold:
         return 1
     else:
         return 0
