@@ -41,7 +41,7 @@ for train_index, test_index in rfk.split(X, Y, groups):
     rf_pred, RF_errors = RF.predict(X_test, True)
     RF_errors = rfslope * RF_errors
 
-    predictions = [th.predictdomainWithThreshold(GPR_errors[i], RF_errors[i], 0.8) for i in range(0, len(X_test))]
+    predictions = [th.predictdomain(GPR_errors[i], RF_errors[i], threshold=0.8) for i in range(0, len(X_test))]
     results = [(groups[j + i], predictions[i], GPR_errors[i], RF_errors[i]) for i in
                range(0, len(X_test))]
     j = j + len(X_test)

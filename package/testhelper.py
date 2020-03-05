@@ -182,14 +182,7 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
         plt.clf()
 
 
-def predictdomain(GPR_error, RF_error):
-    if GPR_error < 0.8 and RF_error < 0.8:
-        return 1
-    else:
-        return 0
-
-
-def predictdomainWithThreshold(GPR_error, RF_error, threshold):
+def predictdomain(GPR_error, RF_error, threshold=0.8):
     if GPR_error < threshold and RF_error < threshold:
         return 1
     else:
