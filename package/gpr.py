@@ -20,7 +20,7 @@ class GPR:
     # kernelchoice=0: ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
     # kernelchoice=1: ConstantKernel()*RBF()
     #
-    # userkernel can be used to provide a custom kernel. The preference is given to 'kernelchoice' over 'userkernel'
+    # userkernel can be used to provide a custom kernel. The preference is given to 'userkernel' over 'kernelchoice'
     def train(self, X_train, y_train, std=None, kernelchoice=0, userkernel=None, optimizer_restarts=10):
         # Scale features
         self.sc = StandardScaler()
@@ -61,7 +61,12 @@ class GPR:
             self.y_std_train = statistics.stdev(y_train_temp)
         else:
             self.y_std_train = std
-        if kernelchoice is 0:
+        if userkernel is not None:
+            # User defined kernel
+            self.kernel = userkernel
+            self.gp = GaussianProcessRegressor(kernel=self.kernel,
+                                               n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
+        elif kernelchoice is 0:
             self.kernel = ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
             self.gp = GaussianProcessRegressor(kernel=self.kernel,
                                                n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
@@ -72,12 +77,6 @@ class GPR:
                                                alpha=0.00001,
                                                n_restarts_optimizer=optimizer_restarts,
                                                normalize_y=False).fit(self.X_train, self.y_train)
-
-        elif userkernel is not None:
-            # User defined kernel
-            self.kernel = userkernel
-            self.gp = GaussianProcessRegressor(kernel=self.kernel,
-                                               n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
         else:
             raise ValueError('ERROR: Invalid GPR kernel.')
 
