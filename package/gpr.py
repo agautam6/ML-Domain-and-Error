@@ -31,7 +31,12 @@ class GPR:
             self.y_std_train = statistics.stdev(y_train_temp)
         else:
             self.y_std_train = std
-        if kernelchoice is 0:
+        if userkernel is not None:
+            # User defined kernel
+            self.kernel = userkernel
+            self.gp = GaussianProcessRegressor(kernel=self.kernel,
+                                               n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
+        elif kernelchoice is 0:
             self.kernel = ConstantKernel() + 1.0 ** 2 * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1)
             self.gp = GaussianProcessRegressor(kernel=self.kernel,
                                                n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
@@ -42,12 +47,6 @@ class GPR:
                                                alpha=0.00001,
                                                n_restarts_optimizer=optimizer_restarts,
                                                normalize_y=False).fit(self.X_train, self.y_train)
-
-        elif userkernel is not None:
-            # User defined kernel
-            self.kernel = userkernel
-            self.gp = GaussianProcessRegressor(kernel=self.kernel,
-                                               n_restarts_optimizer=optimizer_restarts).fit(self.X_train, self.y_train)
         else:
             raise ValueError('ERROR: Invalid GPR kernel.')
     
