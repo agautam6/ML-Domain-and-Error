@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -182,50 +182,55 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
         plt.clf()
 
 
-def predictdomain(GPR_error, RF_error, threshold=0.8):
-    if GPR_error < threshold and RF_error < threshold:
+def predictdomain(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
+    if GPR_error < gpr_threshold and RF_error < rf_threshold:
         return 1
     else:
         return 0
 
 
-def getcontribution(GPR_error, RF_error):
-    if GPR_error < 0.8 and RF_error < 0.8:
+def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
+    if GPR_error < gpr_threshold and RF_error < rf_threshold:
         return 0
-    elif RF_error < 0.8 <= GPR_error:
+    elif RF_error < rf_threshold and gpr_threshold <= GPR_error:
         return 1
-    elif GPR_error < 0.8 <= RF_error:
+    elif GPR_error < gpr_threshold and rf_threshold <= RF_error:
         return 2
     else:
         return 3
 
 
+def getRMSnormalityscore(counts, bins):
+    return mean_squared_error(stats.norm.pdf(bins[1:]) - stats.norm.pdf(bins[:-1]), np.multiply(counts, (bins[1]-bins[0])))
+
+
 # Expects non-empty 'data'
 def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
-                          _xlabel=None, _ylabel=None, _bincount=10, _title=None):
-    # _weights = None
+                          _xlabel=None, _ylabel=None, _bincount=10, _title=None, _normalitytest=None):
     if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
-        # if len(data) is not 0:
-        #     _weights = [1 / len(data)] * len(data)
         (mu, sigma) = stats.norm.fit(data)
+        total = len(data)
     else:
-        # total = 0
-        # for i in range(0, len(data)):
-        #     total += len(data[i])
-        # if total is not 0:
-        #     _weights = w = [[1 / total] * len(data[i]) for i in range(0, len(data))]
         (mu, sigma) = stats.norm.fit([val for sublist in data for val in sublist])
-    # n, bins, patches = plt.hist(data, weights=_weights, label=_label, stacked=_stacked)
+        total = sum([len(i) for i in data])
     n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=_bincount)
+    if isinstance(n[0], np.ndarray):
+        n = [sum(i) for i in zip(*n)]
     x = np.linspace(-6, 6, 1000)
     plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
     plt.plot(x, stats.norm.pdf(x, mu, sigma), label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
     plt.ylabel(_ylabel)
     plt.xlabel(_xlabel)
-    plt.title(_title)
+    plt.title(_title+" ({} points)".format(total))
     plt.legend(loc='best', frameon=False, prop={'size': 6})
     if filename is None:
         plt.show()
     else:
         plt.savefig("{}.png".format(filename))
         plt.clf()
+    normalityscore = []
+    if _normalitytest is not None:
+        for i in _normalitytest:
+            if i is 'RMSE':
+                normalityscore.append(getRMSnormalityscore(n, bins))
+    return normalityscore
