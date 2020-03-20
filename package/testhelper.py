@@ -50,6 +50,12 @@ def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
     for i in range(1, number_of_bins + 1):
         if i in digitized:
             bins_present.append(i)
+    
+    # Create array of weights based on counts in each bin
+    weights = []
+    for i in range(1,number_of_bins + 1):
+        if i in digitized:
+            weights.append(np.count_nonzero(digitized == i))
 
     # Calculate RMS of the absolute residuals
     RMS_abs_res = [np.sqrt((abs_res[digitized == bins_present[i]] ** 2).mean()) for i in range(0, len(bins_present))]
@@ -62,24 +68,27 @@ def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
         binned_model_errors[i] = bins[curr_bin - 1] + bin_width / 2
 
     # Fit a line to the data
-    model = LinearRegression(fit_intercept=False)
+    model = LinearRegression(fit_intercept=True)
     model.fit(binned_model_errors[:, np.newaxis],
-              RMS_abs_res)  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
+              RMS_abs_res, sample_weight=weights)  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
     xfit = binned_model_errors
     yfit = model.predict(xfit[:, np.newaxis])
 
     # Calculate r^2 value
-    r_squared = r2_score(RMS_abs_res, yfit)
+    r_squared = r2_score(RMS_abs_res, yfit, sample_weight=weights)
     # Calculate slope
     slope = model.coef_
+    # Calculate y-intercept
+    intercept = model.intercept_
 
     # Create RMS scatter plot
     plt.xlabel("%s model errors / dataset stdev" % (model_name))
     plt.ylabel("%s RMS Absolute residuals / dataset stdev" % (model_name))
     plt.ylim(0, 1)
     plt.title("%s RMS Absolute Residuals vs. Model Errors" % (model_name))
-    plt.text(0.2, 0.8, 'r^2 = %f' % (r_squared))
-    plt.text(0.2, 0.7, 'slope = %f' % (slope))
+    plt.text(0.2, 0.9, 'r^2 = %f' % (r_squared))
+    plt.text(0.2, 0.8, 'slope = %f' % (slope))
+    plt.text(0.2, 0.7, 'y-intercept = %f' % (intercept))
     plt.plot(binned_model_errors, RMS_abs_res, 'o', color='blue')
     plt.plot(xfit, yfit);
 
@@ -135,6 +144,12 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
     for i in range(1, number_of_bins + 1):
         if i in digitized:
             bins_present.append(i)
+            
+    # Create array of weights based on counts in each bin
+    weights = []
+    for i in range(1,number_of_bins + 1):
+        if i in digitized:
+            weights.append(np.count_nonzero(digitized == i))
 
     # Calculate RMS of the absolute residuals
     RMS_abs_res = [np.sqrt((abs_res[digitized == bins_present[i]] ** 2).mean()) for i in range(0, len(bins_present))]
@@ -153,24 +168,27 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
     cutoff_bin = np.digitize(cutoff_value, bins)
 
     # Fit a line to the data
-    model = LinearRegression(fit_intercept=False)
+    model = LinearRegression(fit_intercept=True)
     model.fit(binned_model_errors[0:cutoff_bin, np.newaxis],
-              RMS_abs_res[0:cutoff_bin])  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
+              RMS_abs_res[0:cutoff_bin], sample_weight=weights[0:cutoff_bin])  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
     xfit = binned_model_errors[0:cutoff_bin]
     yfit = model.predict(xfit[:, np.newaxis])
 
     # Calculate r^2 value
-    r_squared = r2_score(RMS_abs_res[0:cutoff_bin], yfit)
+    r_squared = r2_score(RMS_abs_res[0:cutoff_bin], yfit, sample_weight=weights[0:cutoff_bin])
     # Calculate slope
     slope = model.coef_
+    # Calculate y-intercept
+    intercept = model.intercept_
 
     # Create RMS scatter plot
     plt.xlabel("%s model errors / dataset stdev" % (model_name))
     plt.ylabel("%s RMS Absolute residuals / dataset stdev" % (model_name))
     plt.ylim(0, 1)
     plt.title("%s RMS Absolute Residuals vs. Model Errors" % (model_name))
-    plt.text(0.2, 0.8, 'r^2 = %f' % (r_squared))
-    plt.text(0.2, 0.7, 'slope = %f' % (slope))
+    plt.text(0.2, 0.9, 'r^2 = %f' % (r_squared))
+    plt.text(0.2, 0.8, 'slope = %f' % (slope))
+    plt.text(0.2, 0.7, 'y-intercept = %f' % (intercept))
     plt.plot(binned_model_errors[0:cutoff_bin], RMS_abs_res[0:cutoff_bin], 'o', color='blue')
     plt.plot(binned_model_errors[cutoff_bin:], RMS_abs_res[cutoff_bin:], 'o', color='red')
     plt.plot(xfit, yfit);
