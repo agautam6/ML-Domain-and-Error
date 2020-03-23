@@ -10,7 +10,8 @@ randomstate = None
 gpr_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
 rf_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
 trainfile = 'data/Diffusion_Data_allfeatures.csv'
-rfslope = 0.65
+rfslope = 0.629705
+rfintercept = 0.037300
 gprsavedkernel = io.loadmodelobj('models/GPR_data_Diffusion_Data_allfeatures_csv_02-24-20_18-32-12') \
     .getGPRkernel()
 # gprsavedkernel = None
@@ -37,7 +38,7 @@ for train_index, test_index in rs.split(X_all):
     RF.train(X_train, y_train, std=y_std)
     gpr_pred, GPR_errors = GPR.predict(X_test, True)
     rf_pred, RF_errors = RF.predict(X_test, True)
-    RF_errors = rfslope * RF_errors
+    RF_errors = (rfslope * RF_errors) + rfintercept
     for i_rf_thresholds in range(0, len(rf_thresholds_range)):
         for i_gpr_thresholds in range(0, len(gpr_thresholds_range)):
             gpr_thresh = round(gpr_thresholds[i_rf_thresholds, i_gpr_thresholds], 1)
@@ -106,7 +107,7 @@ for i_rf_thresholds in range(0, len(rf_thresholds_range)):
 
 in_domain_norm_score_RMS = array(in_domain_norm_score_RMS).reshape(
     (len(rf_thresholds_range), len(gpr_thresholds_range)))
-plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_RMS, cmap='RdYlGn_r')
+plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_RMS)
 plt.colorbar()
 plt.title('In-Domain Normality RMSE Contour Plot Diffusion data')
 plt.xlabel('GPR cutoff')
@@ -116,7 +117,7 @@ plt.clf()
 
 out_domain_norm_score_RMS = array(out_domain_norm_score_RMS).reshape(
     (len(rf_thresholds_range), len(gpr_thresholds_range)))
-plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_RMS, cmap='RdYlGn')
+plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_RMS)
 plt.colorbar()
 plt.title('Out-Domain Normality RMSE Contour Plot Diffusion data')
 plt.xlabel('GPR cutoff')
