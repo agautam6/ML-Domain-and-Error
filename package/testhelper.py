@@ -232,7 +232,7 @@ def getDAgostinoPearsonScore(x):
 
 # Expects non-empty 'data'
 def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
-                          _xlabel=None, _ylabel=None, _bincount=10, _title=None, _normalitytest=None):
+                          _xlabel="", _ylabel="", _bincount=10, _title="", _normalitytest=None):
     onelist = data
     if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
         (mu, sigma) = stats.norm.fit(data)
