@@ -222,14 +222,24 @@ def getRMSnormalityscore(counts, bins):
     return mean_squared_error(stats.norm.pdf(bins[1:]) - stats.norm.pdf(bins[:-1]), np.multiply(counts, (bins[1]-bins[0])))
 
 
+def getShapiroWilkScore(x):
+    return 0 if len(x) < 3 else stats.shapiro(x)[1]
+
+
+def getDAgostinoPearsonScore(x):
+    return 0 if len(x) < 8 else stats.normaltest(x)[1]
+
+
 # Expects non-empty 'data'
 def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
                           _xlabel=None, _ylabel=None, _bincount=10, _title=None, _normalitytest=None):
+    onelist = data
     if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
         (mu, sigma) = stats.norm.fit(data)
         total = len(data)
     else:
-        (mu, sigma) = stats.norm.fit([val for sublist in data for val in sublist])
+        onelist = [val for sublist in data for val in sublist]
+        (mu, sigma) = stats.norm.fit(onelist)
         total = sum([len(i) for i in data])
     n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=_bincount)
     if isinstance(n[0], np.ndarray):
@@ -246,9 +256,13 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
     else:
         plt.savefig("{}.png".format(filename))
         plt.clf()
-    normalityscore = []
+    normalityscore = {}
     if _normalitytest is not None:
         for i in _normalitytest:
-            if i is 'RMSE':
-                normalityscore.append(getRMSnormalityscore(n, bins))
+            if i == 'RMSE':
+                normalityscore[i] = getRMSnormalityscore(n, bins)
+            elif i == 'Shapiro-Wilk':
+                normalityscore[i] = getShapiroWilkScore(onelist)
+            elif i == 'DAgostino-Pearson':
+                normalityscore[i] = getDAgostinoPearsonScore(onelist)
     return normalityscore
