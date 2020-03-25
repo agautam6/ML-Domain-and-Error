@@ -1,10 +1,11 @@
 # generate plots for Diffusion dataset - LOG Pair for RF
+import os
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import LeaveOneGroupOut
 
-from package import io, rf
-from package import testhelper as th
+from package import io, rf, testhelper as th
 
 
 def checkAlreadyDone(element, alreadylist):
@@ -14,6 +15,7 @@ def checkAlreadyDone(element, alreadylist):
     return False
 
 
+filename = os.path.abspath('.') + "/Plots/slope-intercept/Diffusion LOG Pair/LOGPair"
 data = io.importdata('data/Diffusion_Data_allfeatures.csv')
 groups = data['Material compositions 1'].values
 
@@ -60,4 +62,5 @@ for train_index, test_index in rfk.split(X, Y, groups):
 
     alreadyDone.append(testGroup[0])
 
-th.RF_plot(rf_res, rf_sigma, "RF", 20, "LOGPair")
+th.RF_plot(rf_res, rf_sigma, "RF", 20,
+           filename)
