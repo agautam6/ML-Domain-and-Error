@@ -29,8 +29,8 @@ gprsavedkernel = None
 
 X = data.iloc[:, 1:]
 Y = data.iloc[:, 0]
-rfslope = 0.919216
-rfintercept = -0.025370
+rfslope = 0.927880
+rfintercept = 0
 y_std = statistics.stdev(Y.to_numpy(dtype=float))
 
 # Setup thresholds
@@ -54,7 +54,7 @@ alreadyDone = []
 count = 1
 
 # path = os.path.abspath('..') + "/domain results/Normality Test RMSE/Diffusion LOG/"
-path = os.path.abspath('..') + "/domain results/slope-intercept/Diffusion LOG Pair/Diffusion LOG Pair/"
+path = os.path.abspath('..') + "/domain results/Normality Test RMSE/Diffusion LOG Pair/Diffusion LOG Pair/"
 
 for train_index, test_index in rfk.split(X, Y, groups):
     X_train_1, X_test_1 = X.iloc[train_index], X.iloc[test_index]
@@ -107,7 +107,7 @@ for train_index, test_index in rfk.split(X, Y, groups):
                                for i in range(0, len(twoTest))]
 
                 for i in range(0, len(twoTest)):
-                    residual_by_std = abs(rf_pred[i] - yFrames.to_numpy(dtype=float)[i]) / y_std
+                    residual_by_std = (rf_pred[i] - yFrames.to_numpy(dtype=float)[i]) / y_std
                     predicted_error = RF_errors[i]
                     if predictions[i] is 1:
                         in_domain.append(residual_by_std / predicted_error if predicted_error else 0)
@@ -154,7 +154,6 @@ for train_index, test_index in rfk.split(X, Y, groups):
 
 in_domain_norm_scores = {a: [] for a in normalityTests}
 out_domain_norm_scores = {a: [] for a in normalityTests}
-
 results = []
 
 for i_rf_thresholds in range(0, len(rf_thresholds_range)):
