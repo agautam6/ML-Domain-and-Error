@@ -232,7 +232,7 @@ def getDAgostinoPearsonScore(x):
 
 # Expects non-empty 'data'
 def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
-                          _xlabel="", _ylabel="", _bincount=10, _title="", _normalitytest=None):
+                          _xlabel="", _ylabel="", _range=(-5, 5), _bincount=[10], _title="", _normalitytest=None):
     onelist = data
     if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
         (mu, sigma) = stats.norm.fit(data)
@@ -241,28 +241,29 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
         onelist = [val for sublist in data for val in sublist]
         (mu, sigma) = stats.norm.fit(onelist)
         total = sum([len(i) for i in data])
-    n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=_bincount)
-    if isinstance(n[0], np.ndarray):
-        n = [sum(i) for i in zip(*n)]
-    x = np.linspace(-6, 6, 1000)
-    plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
-    plt.plot(x, stats.norm.pdf(x, mu, sigma), label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
-    plt.ylabel(_ylabel)
-    plt.xlabel(_xlabel)
-    plt.title(_title+" ({} points)".format(total))
-    plt.legend(loc='best', frameon=False, prop={'size': 6})
-    if filename is None:
-        plt.show()
-    else:
-        plt.savefig("{}.png".format(filename))
-        plt.clf()
-    normalityscore = {}
-    if _normalitytest is not None:
-        for i in _normalitytest:
-            if i == 'RMSE':
-                normalityscore[i] = getRMSnormalityscore(n, bins)
-            elif i == 'Shapiro-Wilk':
-                normalityscore[i] = getShapiroWilkScore(onelist)
-            elif i == 'DAgostino-Pearson':
-                normalityscore[i] = getDAgostinoPearsonScore(onelist)
+    normalityscore = {a: {b_i: [] for b_i in _bincount} for a in _normalitytest}
+    for b_i in _bincount:
+        n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=b_i, range=_range)
+        if isinstance(n[0], np.ndarray):
+            n = [sum(i) for i in zip(*n)]
+        x = np.linspace(-5, 5, 1000)
+        plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
+        plt.plot(x, stats.norm.pdf(x, mu, sigma), label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
+        plt.ylabel(_ylabel)
+        plt.xlabel(_xlabel)
+        plt.title(_title+" ({} points {} bins)".format(total, b_i))
+        plt.legend(loc='best', frameon=False, prop={'size': 6})
+        if filename is None:
+            plt.show()
+        else:
+            plt.savefig("{}_{} bins.png".format(filename, b_i))
+            plt.clf()
+        if _normalitytest is not None:
+            for i in _normalitytest:
+                if i == 'RMSE':
+                    normalityscore[i][b_i] = getRMSnormalityscore(n, bins)
+                elif i == 'Shapiro-Wilk':
+                    normalityscore[i][b_i] = getShapiroWilkScore(onelist)
+                elif i == 'DAgostino-Pearson':
+                    normalityscore[i][b_i] = getDAgostinoPearsonScore(onelist)
     return normalityscore
