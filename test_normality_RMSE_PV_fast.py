@@ -9,8 +9,10 @@ it = 10
 randomstate = None
 gpr_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
 rf_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
-normalityTests = ['RMSE', 'Shapiro-Wilk', 'DAgostino-Pearson']
+# normalityTests = ['RMSE', 'Shapiro-Wilk', 'DAgostino-Pearson']
+normalityTests = ['RMSE']
 defaults = {'RMSE': 1, 'Shapiro-Wilk': 0, 'DAgostino-Pearson': 0}
+bin_sizes = [10, 50, 100, 200, 500]
 
 trainfile = 'data/PVstability_Weipaper_alldata_featureselected.csv'
 rfslope = 0.889069
@@ -61,8 +63,8 @@ for train_index, test_index in rs.split(X_all):
                         append(residual_by_std / predicted_error if predicted_error else 0)
     count += 1
 
-in_domain_norm_scores = {a: [] for a in normalityTests}
-out_domain_norm_scores = {a: [] for a in normalityTests}
+in_domain_norm_scores = {a: {b_i: [] for b_i in bin_sizes} for a in normalityTests}
+out_domain_norm_scores = {a: {b_i: [] for b_i in bin_sizes} for a in normalityTests}
 results = []
 
 for i_rf_thresholds in range(0, len(rf_thresholds_range)):
@@ -84,13 +86,15 @@ for i_rf_thresholds in range(0, len(rf_thresholds_range)):
                                                                                               rf_thresh),
                                              filename='in_domain_Rstat_PV_{}-gpr_{}-rf'.format(gpr_thresh,
                                                                                                rf_thresh),
-                                             _bincount=50, _normalitytest=normalityTests)
+                                             _bincount=bin_sizes, _normalitytest=normalityTests)
             for test in normalityTests:
-                in_domain_norm_scores[test].append(score[test])
+                for b_i in bin_sizes:
+                    in_domain_norm_scores[test][b_i].append(score[test][b_i])
         else:
             print('GPR Threshold = {} RF Threshold = {}, No points in-domain'.format(gpr_thresh, rf_thresh))
             for test in normalityTests:
-                in_domain_norm_scores[test].append(defaults[test])
+                for b_i in bin_sizes:
+                    in_domain_norm_scores[test][b_i].append(defaults[test])
         if num_out_domain is not 0:
             score = th.plotrstatwithgaussian(out_domain, _label=['GPR', 'RF', 'both'],
                                              _xlabel='RF residual / RF predicted error',
@@ -99,48 +103,55 @@ for i_rf_thresholds in range(0, len(rf_thresholds_range)):
                                                                                                rf_thresh),
                                              filename='out_domain_Rstat_PV_{}-gpr_{}-rf'.format(gpr_thresh,
                                                                                                 rf_thresh),
-                                             _bincount=50, _normalitytest=normalityTests)
+                                             _bincount=bin_sizes, _normalitytest=normalityTests)
             for test in normalityTests:
-                out_domain_norm_scores[test].append(score[test])
+                for b_i in bin_sizes:
+                    out_domain_norm_scores[test][b_i].append(score[test][b_i])
         else:
             print('GPR Threshold = {} RF Threshold = {}, No points out-domain'.format(gpr_thresh, rf_thresh))
             for test in normalityTests:
-                out_domain_norm_scores[test].append(defaults[test])
+                for b_i in bin_sizes:
+                    out_domain_norm_scores[test][b_i].append(defaults[test])
         for test in normalityTests:
-            cur_result.append(in_domain_norm_scores[test][-1])
-            cur_result.append(out_domain_norm_scores[test][-1])
+            for b_i in bin_sizes:
+                cur_result.append(in_domain_norm_scores[test][b_i][-1])
+                cur_result.append(out_domain_norm_scores[test][b_i][-1])
         results.append(cur_result)
 
 for test in normalityTests:
-    in_domain_norm_score_cur = array(in_domain_norm_scores[test]).reshape(
-        (len(rf_thresholds_range), len(gpr_thresholds_range)))
-    plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur)
-    plt.colorbar()
-    plt.title('In-Domain {} test Contour Plot PV'.format(test))
-    plt.xlabel('GPR cutoff')
-    plt.ylabel('RF cutoff')
-    plt.savefig('In-Domain {} test Contour Plot PV data.png'.format(test))
-    plt.clf()
+    for b_i in bin_sizes:
+        in_domain_norm_score_cur = array(in_domain_norm_scores[test][b_i]).reshape(
+            (len(rf_thresholds_range), len(gpr_thresholds_range)))
+        plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur)
+        plt.colorbar()
+        plt.title('PV In-Domain {} {} bins'.format(test, b_i))
+        plt.xlabel('GPR cutoff')
+        plt.ylabel('RF cutoff')
+        plt.savefig('PV In-Domain {} {} bins.png'.format(test, b_i))
+        plt.clf()
 
-    out_domain_norm_score_cur = array(out_domain_norm_scores[test]).reshape(
-        (len(rf_thresholds_range), len(gpr_thresholds_range)))
-    plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur)
-    plt.colorbar()
-    plt.title('Out-Domain {} test Contour Plot PV'.format(test))
-    plt.xlabel('GPR cutoff')
-    plt.ylabel('RF cutoff')
-    plt.savefig('Out-Domain {} test Contour Plot PV data.png'.format(test))
-    plt.clf()
+        out_domain_norm_score_cur = array(out_domain_norm_scores[test][b_i]).reshape(
+            (len(rf_thresholds_range), len(gpr_thresholds_range)))
+        plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur)
+        plt.colorbar()
+        plt.title('PV Out-Domain {} {} bins.png'.format(test, b_i))
+        plt.xlabel('GPR cutoff')
+        plt.ylabel('RF cutoff')
+        plt.savefig('PV Out-Domain {} {} bins.png'.format(test, b_i))
+        plt.clf()
 
-fd = open('Normality_tests_PV_data_logs.txt', 'w')
+fd = open('Normality_tests_PV_logs.txt', 'w')
 log_headers = ["RF cutoff",
                "GPR cutoff",
                "Points in-domain",
                "Points out-domain"]
+value_format = [".1f", ".1f", ".0f", ".0f"]
 for testname in normalityTests:
-    log_headers.append('In-Domain {} test score'.format(testname))
-    log_headers.append('Out-Domain {} test score'.format(testname))
-value_format = [".1f", ".1f", ".0f", ".0f", ".5f", ".5f", ".5f", ".5f", ".5f", ".5f"]
+    for b_i in bin_sizes:
+        log_headers.append('In-Domain {} test score'.format(testname))
+        log_headers.append('Out-Domain {} test score'.format(testname))
+        value_format.append(".5f")
+        value_format.append(".5f")
 print(tabulate(results,
                headers=log_headers,
                tablefmt="github",
