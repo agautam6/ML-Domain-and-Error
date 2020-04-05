@@ -8,8 +8,8 @@ from tabulate import tabulate
 
 it = 10
 randomstate = None
-gpr_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
-rf_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
+gpr_thresholds_range = round(arange(0.1, 1.2, 0.1), 1)
+rf_thresholds_range = round(arange(0.1, 1.2, 0.1), 1)
 # normalityTests = ['RMSE', 'Shapiro-Wilk', 'DAgostino-Pearson']
 normalityTests = ['RMSE']
 defaults = {'RMSE': 1, 'Shapiro-Wilk': 0, 'DAgostino-Pearson': 0}
@@ -20,7 +20,7 @@ rfintercept = 0.0184
 
 
 # define training data size
-training_num = 2000
+training_num = 10000
 
 # x-values: all uniformly distributed between 0 and 1
 x0_train=np.random.rand(training_num)*0.5
@@ -46,7 +46,7 @@ RF = rf.RF()
 RF.train_synth(X_train, y_train, std=standard_deviation)
 
 # define test data size
-test_num = 1000
+test_num = 5000
 
 # x-values: add or remove the *0.5 for each one
 x0_test=np.random.rand(test_num)
@@ -108,9 +108,9 @@ for i_rf_thresholds in range(0, len(rf_thresholds_range)):
             score = th.plotrstatwithgaussian(in_domain, _label=['GPR and RF'],
                                              _xlabel='RF residual / RF predicted error',
                                              _ylabel='Normalized Counts',
-                                             _title='in-domain Diffusion data GPR: {} RF: {}'.format(gpr_thresh,
+                                             _title='in-domain Synthetic data GPR: {} RF: {}'.format(gpr_thresh,
                                                                                                      rf_thresh),
-                                             filename='in_domain_Rstat_Diffusion_{}-gpr_{}-rf'.format(gpr_thresh,
+                                             filename='in_domain_Rstat_Modified_Friedman_{}-gpr_{}-rf'.format(gpr_thresh,
                                                                                                       rf_thresh),
                                              _bincount=bin_sizes, _normalitytest=normalityTests, _range=(-50,50))
             for test in normalityTests:
@@ -125,9 +125,9 @@ for i_rf_thresholds in range(0, len(rf_thresholds_range)):
             score = th.plotrstatwithgaussian(out_domain, _label=['GPR', 'RF', 'both'],
                                              _xlabel='RF residual / RF predicted error',
                                              _ylabel='Normalized Counts',
-                                             _title='out-domain Diffusion data GPR: {} RF: {}'.format(gpr_thresh,
+                                             _title='out-domain Synthetic data GPR: {} RF: {}'.format(gpr_thresh,
                                                                                                       rf_thresh),
-                                             filename='out_domain_Rstat_Diffusion_{}-gpr_{}-rf'.format(gpr_thresh,
+                                             filename='out_domain_Rstat_Modified_Friedman_{}-gpr_{}-rf'.format(gpr_thresh,
                                                                                                        rf_thresh),
                                              _bincount=bin_sizes, _normalitytest=normalityTests, _range=(-50,50))
             for test in normalityTests:
@@ -150,23 +150,23 @@ for test in normalityTests:
             (len(rf_thresholds_range), len(gpr_thresholds_range)))
         plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur)
         plt.colorbar()
-        plt.title('Diffusion In-Domain {} {} bins'.format(test, b_i))
+        plt.title('Synthetic In-Domain {} {} bins'.format(test, b_i))
         plt.xlabel('GPR cutoff')
         plt.ylabel('RF cutoff')
-        plt.savefig('Diffusion In-Domain {} {} bins.png'.format(test, b_i))
+        plt.savefig('Modified Friedman In-Domain {} {} bins.png'.format(test, b_i))
         plt.clf()
 
         out_domain_norm_score_cur = array(out_domain_norm_scores[test][b_i]).reshape(
             (len(rf_thresholds_range), len(gpr_thresholds_range)))
         plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur)
         plt.colorbar()
-        plt.title('Diffusion Out-Domain {} {} bins.png'.format(test, b_i))
+        plt.title('Synthetic Out-Domain {} {} bins.png'.format(test, b_i))
         plt.xlabel('GPR cutoff')
         plt.ylabel('RF cutoff')
-        plt.savefig('Diffusion Out-Domain {} {} bins.png'.format(test, b_i))
+        plt.savefig('Modified Friedman Out-Domain {} {} bins.png'.format(test, b_i))
         plt.clf()
 
-fd = open('Normality_tests_Diffusion_logs.txt', 'w')
+fd = open('Normality_tests_Modified_Friedman_logs.txt', 'w')
 log_headers = ["RF cutoff",
                "GPR cutoff",
                "Points in-domain",
