@@ -219,7 +219,7 @@ def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
 
 
 def getRMSnormalityscore(counts, bins):
-    return mean_squared_error(stats.norm.pdf(bins[1:]) - stats.norm.pdf(bins[:-1]), np.multiply(counts, (bins[1]-bins[0])))
+    return mean_squared_error(stats.norm.cdf(bins[1:]) - stats.norm.cdf(bins[:-1]), np.multiply(counts, (bins[1]-bins[0])))
 
 
 def getShapiroWilkScore(x):
