@@ -1,5 +1,6 @@
 from scipy import stats
 from package import testhelper as th
+# from package import io
 import matplotlib.pyplot as plt
 # normalityTests = ['RMSE', 'Shapiro-Wilk', 'DAgostino-Pearson']
 normalityTests = ['RMSE']
@@ -26,3 +27,4 @@ for k in normalityTests:
         plt.savefig('Normality-Benchmark-{}-test-{}-bins.png'.format(k, b_i))
         # plt.show()
         plt.clf()
+# io.savemodelobj(results['RMSE'], filename_from_user='normality_benchmark_rmse')
