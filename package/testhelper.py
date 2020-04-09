@@ -3,10 +3,10 @@ import numpy as np
 import scipy.stats as stats
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
-from package import io
+from pkg_resources import resource_stream
+from pickle import load
 
-
-normality_benchmark = io.loadmodelobj('normality-benchmarks/normality_benchmark_rmse_04-07-20_21-43-01')
+normality_benchmark = load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_rmse_04-07-20_21-43-01'))
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
