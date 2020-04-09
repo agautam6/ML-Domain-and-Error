@@ -4,14 +4,16 @@ from sklearn.model_selection import ShuffleSplit
 from package import gpr, io, rf, testhelper as th
 import matplotlib.pyplot as plt
 from tabulate import tabulate
+import sys
 
 it = 10
 randomstate = None
 gpr_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
 rf_thresholds_range = round(arange(0.5, 1.2, 0.1), 1)
 # normalityTests = ['RMSE', 'Shapiro-Wilk', 'DAgostino-Pearson']
-normalityTests = ['RMSE']
-defaults = {'RMSE': 1, 'Shapiro-Wilk': 0, 'DAgostino-Pearson': 0}
+# normalityTests = ['RMSE']
+normalityTests = ['Normalized-RMSE']
+defaults = {'RMSE': 1, 'Shapiro-Wilk': 0, 'DAgostino-Pearson': 0, 'Normalized-RMSE': sys.maxsize*2 + 1}
 bin_sizes = [10, 50, 100, 200, 500]
 
 trainfile = 'data/Diffusion_Data_allfeatures.csv'

@@ -3,6 +3,10 @@ import numpy as np
 import scipy.stats as stats
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
+from package import io
+
+
+normality_benchmark = io.loadmodelobj('normality_benchmark_rmse_04-07-20_21-43-01')
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -260,7 +264,9 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
             plt.clf()
         if _normalitytest is not None:
             for i in _normalitytest:
-                if i == 'RMSE':
+                if i == 'Normalized-RMSE':
+                    normalityscore[i][b_i] = (getRMSnormalityscore(n, bins) / normality_benchmark[b_i][len(onelist)-1])
+                elif i == 'RMSE':
                     normalityscore[i][b_i] = getRMSnormalityscore(n, bins)
                 elif i == 'Shapiro-Wilk':
                     normalityscore[i][b_i] = getShapiroWilkScore(onelist)
