@@ -6,7 +6,10 @@ from sklearn.metrics import r2_score, mean_squared_error
 from pkg_resources import resource_stream
 from pickle import load
 
-normality_benchmark = load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_rmse_averaged_04-09-20_22-54-55'))
+normality_benchmark = \
+    load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_rmse_averaged_04-09-20_22-54-55'))
+log_normality_benchmark = \
+    load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_negative_log_rmse_averaged_04-09-20_22-54-56'))
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -271,7 +274,9 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
         plt.clf()
         if _normalitytest is not None:
             for i in _normalitytest:
-                if i == 'Log-RMSE':
+                if i == 'Normalized-Log-RMSE':
+                    normalityscore[i][b_i] = log_normality_benchmark[b_i][len(onelist)-1] - getLogRMSnormalityscore(n, bins)
+                elif i == 'Log-RMSE':
                     normalityscore[i][b_i] = getLogRMSnormalityscore(n, bins)
                 elif i == 'Normalized-RMSE':
                     normalityscore[i][b_i] = (getRMSnormalityscore(n, bins) / normality_benchmark[b_i][len(onelist)-1])
