@@ -222,6 +222,10 @@ def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
         return 3
 
 
+def getLogRMSnormalityscore(counts, bins):
+    return -np.log(getRMSnormalityscore(counts, bins))
+
+
 def getRMSnormalityscore(counts, bins):
     return mean_squared_error(stats.norm.cdf(bins[1:]) - stats.norm.cdf(bins[:-1]), np.multiply(counts, (bins[1]-bins[0])))
 
@@ -267,7 +271,9 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
         plt.clf()
         if _normalitytest is not None:
             for i in _normalitytest:
-                if i == 'Normalized-RMSE':
+                if i == 'Log-RMSE':
+                    normalityscore[i][b_i] = getLogRMSnormalityscore(n, bins)
+                elif i == 'Normalized-RMSE':
                     normalityscore[i][b_i] = (getRMSnormalityscore(n, bins) / normality_benchmark[b_i][len(onelist)-1])
                 elif i == 'RMSE':
                     normalityscore[i][b_i] = getRMSnormalityscore(n, bins)
