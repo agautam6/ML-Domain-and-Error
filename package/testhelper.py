@@ -6,7 +6,7 @@ from sklearn.metrics import r2_score, mean_squared_error
 from pkg_resources import resource_stream
 from pickle import load
 
-normality_benchmark = load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_rmse_04-07-20_21-43-01'))
+normality_benchmark = load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_rmse_averaged_04-09-20_22-54-55'))
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -236,7 +236,8 @@ def getDAgostinoPearsonScore(x):
 
 # Expects non-empty 'data'
 def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
-                          _xlabel="", _ylabel="", _range=(-5, 5), _bincount=[10], _title="", _normalitytest=None):
+                          _xlabel="", _ylabel="", _range=(-5, 5), _bincount=[10], _title="", _normalitytest=None,
+                          _showhist=True):
     onelist = data
     if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
         (mu, sigma) = stats.norm.fit(data)
@@ -250,18 +251,20 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
         n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=b_i, range=_range)
         if isinstance(n[0], np.ndarray):
             n = [sum(i) for i in zip(*n)]
-        x = np.linspace(-5, 5, 1000)
-        plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
-        plt.plot(x, stats.norm.pdf(x, mu, sigma), label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
-        plt.ylabel(_ylabel)
-        plt.xlabel(_xlabel)
-        plt.title(_title+" ({} points {} bins)".format(total, b_i))
-        plt.legend(loc='best', frameon=False, prop={'size': 6})
-        if filename is None:
-            plt.show()
-        else:
-            plt.savefig("{}_{} bins.png".format(filename, b_i))
-            plt.clf()
+        if _showhist is True:
+            x = np.linspace(-5, 5, 1000)
+            plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
+            plt.plot(x, stats.norm.pdf(x, mu, sigma),
+                     label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
+            plt.ylabel(_ylabel)
+            plt.xlabel(_xlabel)
+            plt.title(_title + " ({} points {} bins)".format(total, b_i))
+            plt.legend(loc='best', frameon=False, prop={'size': 6})
+            if filename is None:
+                plt.show()
+            else:
+                plt.savefig("{}_{} bins.png".format(filename, b_i))
+        plt.clf()
         if _normalitytest is not None:
             for i in _normalitytest:
                 if i == 'Normalized-RMSE':
