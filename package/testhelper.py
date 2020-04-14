@@ -7,9 +7,13 @@ from pkg_resources import resource_stream
 from pickle import load
 
 normality_benchmark = \
-    load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_rmse_averaged_04-09-20_22-54-55'))
+    load(
+        resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_rmse_averaged_04-09-20_22-54-55'))
 log_normality_benchmark = \
-    load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_negative_log_rmse_averaged_04-09-20_22-54-56'))
+    load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_negative_log_rmse_averaged_04'
+                                   '-09-20_22-54-56'))
+defaults = {'RMSE': 1, 'Shapiro-Wilk': 0, 'DAgostino-Pearson': 0, 'Normalized-RMSE': 1,
+            'Log-RMSE': 0, 'Normalized-Log-RMSE': 0}
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -57,10 +61,10 @@ def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
     for i in range(1, number_of_bins + 1):
         if i in digitized:
             bins_present.append(i)
-    
+
     # Create array of weights based on counts in each bin
     weights = []
-    for i in range(1,number_of_bins + 1):
+    for i in range(1, number_of_bins + 1):
         if i in digitized:
             weights.append(np.count_nonzero(digitized == i))
 
@@ -77,7 +81,8 @@ def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
     # Fit a line to the data
     model = LinearRegression(fit_intercept=True)
     model.fit(binned_model_errors[:, np.newaxis],
-              RMS_abs_res, sample_weight=weights)  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
+              RMS_abs_res,
+              sample_weight=weights)  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
     xfit = binned_model_errors
     yfit = model.predict(xfit[:, np.newaxis])
 
@@ -151,10 +156,10 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
     for i in range(1, number_of_bins + 1):
         if i in digitized:
             bins_present.append(i)
-            
+
     # Create array of weights based on counts in each bin
     weights = []
-    for i in range(1,number_of_bins + 1):
+    for i in range(1, number_of_bins + 1):
         if i in digitized:
             weights.append(np.count_nonzero(digitized == i))
 
@@ -177,7 +182,8 @@ def RF_plot(res, sigma, model_name, number_of_bins, filename=None):
     # Fit a line to the data
     model = LinearRegression(fit_intercept=True)
     model.fit(binned_model_errors[0:cutoff_bin, np.newaxis],
-              RMS_abs_res[0:cutoff_bin], sample_weight=weights[0:cutoff_bin])  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
+              RMS_abs_res[0:cutoff_bin], sample_weight=weights[
+                                                       0:cutoff_bin])  #### SELF: Can indicate subset of points to fit to using ":" --> "a:b"
     xfit = binned_model_errors[0:cutoff_bin]
     yfit = model.predict(xfit[:, np.newaxis])
 
@@ -230,7 +236,8 @@ def getLogRMSnormalityscore(counts, bins):
 
 
 def getRMSnormalityscore(counts, bins):
-    return mean_squared_error(stats.norm.cdf(bins[1:]) - stats.norm.cdf(bins[:-1]), np.multiply(counts, (bins[1]-bins[0])))
+    return mean_squared_error(stats.norm.cdf(bins[1:]) - stats.norm.cdf(bins[:-1]),
+                              np.multiply(counts, (bins[1] - bins[0])))
 
 
 def getShapiroWilkScore(x):
@@ -247,39 +254,44 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
                           _showhist=True):
     onelist = data
     if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
-        (mu, sigma) = stats.norm.fit(data)
         total = len(data)
     else:
         onelist = [val for sublist in data for val in sublist]
-        (mu, sigma) = stats.norm.fit(onelist)
         total = sum([len(i) for i in data])
     normalityscore = {a: {b_i: [] for b_i in _bincount} for a in _normalitytest}
+    if total > 0:
+        (mu, sigma) = stats.norm.fit(onelist)
     for b_i in _bincount:
-        n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=b_i, range=_range)
-        if isinstance(n[0], np.ndarray):
-            n = [sum(i) for i in zip(*n)]
-        if _showhist is True:
-            x = np.linspace(-5, 5, 1000)
-            plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
-            plt.plot(x, stats.norm.pdf(x, mu, sigma),
-                     label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
-            plt.ylabel(_ylabel)
-            plt.xlabel(_xlabel)
-            plt.title(_title + " ({} points {} bins)".format(total, b_i))
-            plt.legend(loc='best', frameon=False, prop={'size': 6})
-            if filename is None:
-                plt.show()
-            else:
-                plt.savefig("{}_{} bins.png".format(filename, b_i))
-        plt.clf()
+        if total > 0:
+            n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=b_i, range=_range)
+            if isinstance(n[0], np.ndarray):
+                n = [sum(i) for i in zip(*n)]
+            if _showhist is True:
+                x = np.linspace(-5, 5, 1000)
+                plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
+                plt.plot(x, stats.norm.pdf(x, mu, sigma),
+                         label='Gaussian mu: {} std: {}'.format(round(mu, 2), round(sigma, 2)))
+                plt.ylabel(_ylabel)
+                plt.xlabel(_xlabel)
+                plt.title(_title + " ({} points {} bins)".format(total, b_i))
+                plt.legend(loc='best', frameon=False, prop={'size': 6})
+                if filename is None:
+                    plt.show()
+                else:
+                    plt.savefig("{}_{} bins.png".format(b_i, filename, b_i))
+            plt.clf()
         if _normalitytest is not None:
             for i in _normalitytest:
+                if total is 0:
+                    normalityscore[i][b_i] = defaults[i]
+                    continue
                 if i == 'Normalized-Log-RMSE':
-                    normalityscore[i][b_i] = log_normality_benchmark[b_i][len(onelist)-1] - getLogRMSnormalityscore(n, bins)
+                    normalityscore[i][b_i] = log_normality_benchmark[b_i][len(onelist) - 1] - getLogRMSnormalityscore(n, bins)
                 elif i == 'Log-RMSE':
                     normalityscore[i][b_i] = getLogRMSnormalityscore(n, bins)
                 elif i == 'Normalized-RMSE':
-                    normalityscore[i][b_i] = (getRMSnormalityscore(n, bins) / normality_benchmark[b_i][len(onelist)-1])
+                    normalityscore[i][b_i] = (
+                                getRMSnormalityscore(n, bins) / normality_benchmark[b_i][len(onelist) - 1])
                 elif i == 'RMSE':
                     normalityscore[i][b_i] = getRMSnormalityscore(n, bins)
                 elif i == 'Shapiro-Wilk':
