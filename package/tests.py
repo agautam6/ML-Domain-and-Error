@@ -22,7 +22,8 @@ class NormalityTests:
                  bin_sizes=None,
                  contour_plot_same_scale=False,
                  make_counts_plot=True,
-                 random_state=None
+                 random_state=None,
+                 data_sanitize_list=None
                  ):
         # Switches
         if normalityTests is None:
@@ -46,6 +47,7 @@ class NormalityTests:
         self.rfintercept = rfintercept
         self.gprsavedkernel = gprsavedkernel
         self.datasetname = datasetname
+        self.data_sanitize_list = data_sanitize_list
 
     def run(self):
         it = self.it
@@ -64,10 +66,11 @@ class NormalityTests:
         rfintercept = self.rfintercept
         gprsavedkernel = self.gprsavedkernel
         name = self.datasetname
+        data_sanitize_list = self.data_sanitize_list
 
         # Start Test
         data = io.importdata(trainfile)
-        data = io.sanitizedata(data)
+        data = io.sanitizedata(data, user_list=data_sanitize_list)
         X_all = data.iloc[:, 1:]
         y_all = data.iloc[:, 0]
         y_std = statistics.stdev(y_all.to_numpy(dtype=float))
