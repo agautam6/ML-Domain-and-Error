@@ -5,6 +5,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
 from pkg_resources import resource_stream
 from pickle import load
+from pathlib import Path
 
 normality_benchmark = \
     load(
@@ -249,9 +250,8 @@ def getDAgostinoPearsonScore(x):
 
 
 # Expects non-empty 'data'
-def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
-                          _xlabel="", _ylabel="", _range=(-5, 5), _bincount=[10], _title="", _normalitytest=None,
-                          _showhist=True):
+def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.', '.', 'plot.png'),
+                          _xlabel="", _ylabel="", _range=(-5, 5), _bincount=[10], _title="", _normalitytest=None):
     onelist = data
     if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
         total = len(data)
@@ -266,7 +266,7 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
             n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=b_i, range=_range)
             if isinstance(n[0], np.ndarray):
                 n = [sum(i) for i in zip(*n)]
-            if _showhist is True:
+            if _savePlot[0] is True and total>0:
                 x = np.linspace(-5, 5, 1000)
                 plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
                 plt.plot(x, stats.norm.pdf(x, mu, sigma),
@@ -275,10 +275,11 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, filename=None,
                 plt.xlabel(_xlabel)
                 plt.title(_title + " ({} points {} bins)".format(total, b_i))
                 plt.legend(loc='best', frameon=False, prop={'size': 6})
-                if filename is None:
+                if _savePlot[0] is False:
                     plt.show()
                 else:
-                    plt.savefig("{}_{} bins.png".format(b_i, filename, b_i))
+                    Path("{}/{}-bins/{}".format(_savePlot[1], b_i, _savePlot[2])).mkdir(parents=True, exist_ok=True)
+                    plt.savefig("{}/{}-bins/{}/{}_{}_bins.png".format(_savePlot[1], b_i, _savePlot[2], _savePlot[3], b_i))
             plt.clf()
         if _normalitytest is not None:
             for i in _normalitytest:

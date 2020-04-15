@@ -145,9 +145,12 @@ class NormalityTests:
                                                  _ylabel='Normalized Counts',
                                                  _title='in-domain {} data GPR: {} RF: {}'.format(name, gpr_thresh,
                                                                                                   rf_thresh),
-                                                 filename='in_domain_Rstat_{}_{}-gpr_{}-rf'.format(name, gpr_thresh,
-                                                                                                   rf_thresh),
-                                                 _bincount=bin_sizes, _normalitytest=normalityTests, _showhist=False)
+                                                 _savePlot=(True,
+                                                            '{}-Domain-Results'.format(name),
+                                                            'Plots/In-Domain',
+                                                            'in_domain_Rstat_{}_{}-gpr_{}-rf'
+                                                            .format(name, gpr_thresh, rf_thresh)),
+                                                 _bincount=bin_sizes, _normalitytest=normalityTests)
                 for test in normalityTests:
                     for b_i in bin_sizes:
                         in_domain_norm_scores[test][b_i].append(score[test][b_i])
@@ -158,9 +161,12 @@ class NormalityTests:
                                                  _ylabel='Normalized Counts',
                                                  _title='out-domain {} data GPR: {} RF: {}'.format(name, gpr_thresh,
                                                                                                    rf_thresh),
-                                                 filename='out_domain_Rstat_{}_{}-gpr_{}-rf'.format(name, gpr_thresh,
-                                                                                                    rf_thresh),
-                                                 _bincount=bin_sizes, _normalitytest=normalityTests, _showhist=False)
+                                                 _savePlot=(True,
+                                                            '{}-Domain-Results'.format(name),
+                                                            'Plots/Out-Domain',
+                                                            'out_domain_Rstat_{}_{}-gpr_{}-rf'
+                                                            .format(name, gpr_thresh, rf_thresh)),
+                                                 _bincount=bin_sizes, _normalitytest=normalityTests)
                 for test in normalityTests:
                     for b_i in bin_sizes:
                         out_domain_norm_scores[test][b_i].append(score[test][b_i])
@@ -195,7 +201,8 @@ class NormalityTests:
             plt.ylabel('RF cutoff')
             plt.xticks(gpr_thresholds_range, cf_xticks)
             plt.yticks(rf_thresholds_range, cf_yticks)
-            plt.savefig('{} In-Domain Num Points.png'.format(name))
+            '{}-Domain-Results'.format(name)
+            plt.savefig('{}-Domain-Results/{} In-Domain Num Points.png'.format(name, name))
             plt.clf()
             plt.contourf(gpr_thresholds, rf_thresholds, out_domain_num_points)
             plt.colorbar()
@@ -204,7 +211,7 @@ class NormalityTests:
             plt.ylabel('RF cutoff')
             plt.xticks(gpr_thresholds_range, cf_xticks)
             plt.yticks(rf_thresholds_range, cf_yticks)
-            plt.savefig('{} Out-Domain Num Points.png'.format(name))
+            plt.savefig('{}-Domain-Results/{} Out-Domain Num Points.png'.format(name, name))
             plt.clf()
 
         for test in normalityTests:
@@ -226,7 +233,7 @@ class NormalityTests:
                 plt.ylabel('RF cutoff')
                 plt.xticks(gpr_thresholds_range, cf_xticks)
                 plt.yticks(rf_thresholds_range, cf_yticks)
-                plt.savefig('{} In-Domain {} {} bins.png'.format(name, test, b_i))
+                plt.savefig('{}-Domain-Results/{}-bins/{} In-Domain {} {} bins.png'.format(name, b_i, name, test, b_i))
                 plt.clf()
 
                 plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur, levels=clevels)
@@ -236,10 +243,10 @@ class NormalityTests:
                 plt.ylabel('RF cutoff')
                 plt.xticks(gpr_thresholds_range, cf_xticks)
                 plt.yticks(rf_thresholds_range, cf_yticks)
-                plt.savefig('{} Out-Domain {} {} bins.png'.format(name, test, b_i))
+                plt.savefig('{}-Domain-Results/{}-bins/{} Out-Domain {} {} bins.png'.format(name, b_i, name, test, b_i))
                 plt.clf()
 
-        fd = open('Normality_tests_{}_logs.txt'.format(name), 'w')
+        fd = open('{}-Domain-Results/Normality_tests_{}_logs.txt'.format(name, name), 'w')
         log_headers = ["RF cutoff",
                        "GPR cutoff",
                        "Points in-domain",
