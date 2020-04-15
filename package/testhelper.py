@@ -233,7 +233,7 @@ def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
 
 
 def getLogRMSnormalityscore(counts, bins):
-    return -np.log(getRMSnormalityscore(counts, bins))
+    return np.log10(getRMSnormalityscore(counts, bins))
 
 
 def getRMSnormalityscore(counts, bins):
