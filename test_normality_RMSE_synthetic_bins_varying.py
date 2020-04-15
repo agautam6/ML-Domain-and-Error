@@ -5,6 +5,7 @@ from sklearn.model_selection import ShuffleSplit
 from package import gpr, io, rf, testhelper as th
 import matplotlib.pyplot as plt
 from tabulate import tabulate
+import pickle
 
 it = 10
 randomstate = None
@@ -38,18 +39,25 @@ y_train = 30*np.sin(4*np.pi*x0_train*x1_train) + 20*(x2_train - 0.5)**2 + 10*x3_
 standard_deviation = np.std(y_train)
 
 # Train GPR
-GPR = gpr.GPR()
-GPR.train_synth(X_train, y_train, std=standard_deviation, kernelchoice=1, optimizer_restarts=30)
+# GPR = gpr.GPR()
+# GPR.train_synth(X_train, y_train, std=standard_deviation, kernelchoice=0, optimizer_restarts=30)
 
 # Train RF
-RF = rf.RF()
-RF.train_synth(X_train, y_train, std=standard_deviation)
+# RF = rf.RF()
+# RF.train_synth(X_train, y_train, std=standard_deviation)
+
+# Load models
+# Load models
+rf_filename = 'models/rf_synth_model_10000.sav'
+gpr_filename = 'models/gpr_synth_model_10000.sav'
+GPR = pickle.load(open(gpr_filename, 'rb'))
+RF = pickle.load(open(rf_filename, 'rb'))
 
 # define test data size
 test_num = 5000
 
 # x-values: add or remove the *0.5 for each one
-x0_test=np.random.rand(test_num)
+x0_test=np.random.rand(test_num)*0.5
 x1_test=np.random.rand(test_num)*0.5
 x2_test=np.random.rand(test_num)*0.5
 x3_test=np.random.rand(test_num)*0.5
