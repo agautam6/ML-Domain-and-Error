@@ -266,7 +266,7 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.'
             n, bins, patches = plt.hist(data, density=True, label=_label, stacked=_stacked, bins=b_i, range=_range)
             if isinstance(n[0], np.ndarray):
                 n = [sum(i) for i in zip(*n)]
-            if _savePlot[0] is True and total>0:
+            if _savePlot[0] is True and total > 0:
                 x = np.linspace(-5, 5, 1000)
                 plt.plot(x, stats.norm.pdf(x, 0, 1), label='Gaussian mu: 0 std: 1')
                 plt.plot(x, stats.norm.pdf(x, mu, sigma),
@@ -287,7 +287,7 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.'
                     normalityscore[i][b_i] = defaults[i]
                     continue
                 if i == 'Normalized-Log-RMSE':
-                    normalityscore[i][b_i] = log_normality_benchmark[b_i][len(onelist) - 1] - getLogRMSnormalityscore(n, bins)
+                    normalityscore[i][b_i] = (-np.log(log_normality_benchmark[b_i][len(onelist) - 1]))/np.log(10) - getLogRMSnormalityscore(n, bins)
                 elif i == 'Log-RMSE':
                     normalityscore[i][b_i] = getLogRMSnormalityscore(n, bins)
                 elif i == 'Normalized-RMSE':
