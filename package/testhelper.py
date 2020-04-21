@@ -14,7 +14,7 @@ log_normality_benchmark = \
     load(resource_stream(__name__, 'resources/normality-benchmarks/normality_benchmark_negative_log_rmse_averaged_04'
                                    '-09-20_22-54-56'))
 defaults = {'RMSE': 1, 'Shapiro-Wilk': 0, 'DAgostino-Pearson': 0, 'Normalized-RMSE': 1,
-            'Log-RMSE': 0, 'Normalized-Log-RMSE': 0}
+            'Log-RMSE': 0, 'Normalized-Log-RMSE': 0, 'MetricOne': -1, 'MetricTwo': -1}
 
 
 def GPR_plot(res, sigma, model_name, number_of_bins, filename=None):
@@ -231,6 +231,27 @@ def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
     else:
         return 3
 
+def getMetricOne(data):
+    outside = 0
+    total = len(data)
+    for i in range(0, total):
+        if data[i] > 1 or data[i] < -1:
+            outside = outside + 1
+    if total != 0:
+        return outside/(total*0.32)
+    else:
+        return -1
+
+def getMetricTwo(data):
+    outside = 0
+    total = len(data)
+    for i in range(0, total):
+        if data[i] > 2 or data[i] < -2:
+            outside = outside + 1
+    if total != 0:
+        return outside/(total*0.05)
+    else:
+        return -1
 
 def getLogRMSnormalityscore(counts, bins):
     return np.log10(getRMSnormalityscore(counts, bins))
@@ -299,4 +320,8 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.'
                     normalityscore[i][b_i] = getShapiroWilkScore(onelist)
                 elif i == 'DAgostino-Pearson':
                     normalityscore[i][b_i] = getDAgostinoPearsonScore(onelist)
+                elif i == 'MetricOne':
+                    normalityscore[i][b_i] = getMetricOne(onelist)
+                elif i == 'MetricTwo':
+                    normalityscore[i][b_i] = getMetricTwo(onelist)
     return normalityscore
