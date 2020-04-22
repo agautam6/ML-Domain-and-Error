@@ -1,11 +1,12 @@
+from pathlib import Path
+from pickle import load
+
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, mean_squared_error
 from pkg_resources import resource_stream
-from pickle import load
-from pathlib import Path
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 
 normality_benchmark = \
     load(
@@ -231,27 +232,34 @@ def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
     else:
         return 3
 
-def getMetricOne(data):
+
+def getMetricOne(data, data_mean, std):
     outside = 0
     total = len(data)
+    lower_range = data_mean - std
+    upper_range = data_mean + std
     for i in range(0, total):
-        if data[i] > 1 or data[i] < -1:
+        if data[i] > upper_range or data[i] < lower_range:
             outside = outside + 1
     if total != 0:
-        return outside/(total*0.32)
+        return outside / (total * 0.32)
     else:
         return -1
 
-def getMetricTwo(data):
+
+def getMetricTwo(data, data_mean, std):
     outside = 0
     total = len(data)
+    lower_range = data_mean - std * 2
+    upper_range = data_mean + std * 2
     for i in range(0, total):
-        if data[i] > 2 or data[i] < -2:
+        if data[i] > upper_range or data[i] < lower_range:
             outside = outside + 1
     if total != 0:
-        return outside/(total*0.05)
+        return outside / (total * 0.05)
     else:
         return -1
+
 
 def getLogRMSnormalityscore(counts, bins):
     return np.log10(getRMSnormalityscore(counts, bins))
@@ -300,7 +308,8 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.'
                     plt.show()
                 else:
                     Path("{}/{}-bins/{}".format(_savePlot[1], b_i, _savePlot[2])).mkdir(parents=True, exist_ok=True)
-                    plt.savefig("{}/{}-bins/{}/{}_{}_bins.png".format(_savePlot[1], b_i, _savePlot[2], _savePlot[3], b_i))
+                    plt.savefig(
+                        "{}/{}-bins/{}/{}_{}_bins.png".format(_savePlot[1], b_i, _savePlot[2], _savePlot[3], b_i))
             plt.clf()
         if _normalitytest is not None:
             for i in _normalitytest:
@@ -308,12 +317,13 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.'
                     normalityscore[i][b_i] = defaults[i]
                     continue
                 if i == 'Normalized-Log-RMSE':
-                    normalityscore[i][b_i] = (-np.log(log_normality_benchmark[b_i][len(onelist) - 1]))/np.log(10) - getLogRMSnormalityscore(n, bins)
+                    normalityscore[i][b_i] = (-np.log(log_normality_benchmark[b_i][len(onelist) - 1])) / np.log(
+                        10) - getLogRMSnormalityscore(n, bins)
                 elif i == 'Log-RMSE':
                     normalityscore[i][b_i] = getLogRMSnormalityscore(n, bins)
                 elif i == 'Normalized-RMSE':
                     normalityscore[i][b_i] = (
-                                getRMSnormalityscore(n, bins) / normality_benchmark[b_i][len(onelist) - 1])
+                            getRMSnormalityscore(n, bins) / normality_benchmark[b_i][len(onelist) - 1])
                 elif i == 'RMSE':
                     normalityscore[i][b_i] = getRMSnormalityscore(n, bins)
                 elif i == 'Shapiro-Wilk':
@@ -321,7 +331,7 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.'
                 elif i == 'DAgostino-Pearson':
                     normalityscore[i][b_i] = getDAgostinoPearsonScore(onelist)
                 elif i == 'MetricOne':
-                    normalityscore[i][b_i] = getMetricOne(onelist)
+                    normalityscore[i][b_i] = getMetricOne(onelist, mu, sigma)
                 elif i == 'MetricTwo':
-                    normalityscore[i][b_i] = getMetricTwo(onelist)
+                    normalityscore[i][b_i] = getMetricTwo(onelist, mu, sigma)
     return normalityscore
