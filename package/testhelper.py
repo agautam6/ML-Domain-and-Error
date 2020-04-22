@@ -232,14 +232,11 @@ def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
     else:
         return 3
 
-
-def getMetricOne(data, data_mean, std):
+def getMetricOne(data):
     outside = 0
     total = len(data)
-    lower_range = data_mean - std
-    upper_range = data_mean + std
     for i in range(0, total):
-        if data[i] > upper_range or data[i] < lower_range:
+        if data[i] > 1 or data[i] < -1:
             outside = outside + 1
     if total != 0:
         return outside / (total * 0.32)
@@ -247,19 +244,16 @@ def getMetricOne(data, data_mean, std):
         return -1
 
 
-def getMetricTwo(data, data_mean, std):
+def getMetricTwo(data):
     outside = 0
     total = len(data)
-    lower_range = data_mean - std * 2
-    upper_range = data_mean + std * 2
     for i in range(0, total):
-        if data[i] > upper_range or data[i] < lower_range:
+        if data[i] > 2 or data[i] < -2:
             outside = outside + 1
     if total != 0:
         return outside / (total * 0.05)
     else:
         return -1
-
 
 def getLogRMSnormalityscore(counts, bins):
     return np.log10(getRMSnormalityscore(counts, bins))
@@ -331,7 +325,7 @@ def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.'
                 elif i == 'DAgostino-Pearson':
                     normalityscore[i][b_i] = getDAgostinoPearsonScore(onelist)
                 elif i == 'MetricOne':
-                    normalityscore[i][b_i] = getMetricOne(onelist, mu, sigma)
+                    normalityscore[i][b_i] = getMetricOne(onelist)
                 elif i == 'MetricTwo':
-                    normalityscore[i][b_i] = getMetricTwo(onelist, mu, sigma)
+                    normalityscore[i][b_i] = getMetricTwo(onelist)
     return normalityscore
