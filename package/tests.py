@@ -230,17 +230,17 @@ class NormalityTests:
                         max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
                         10)
                     if in_domain_clevels[0] == in_domain_clevels[-1]:
-                        in_domain_clevels = None
+                        in_domain_clevels = [in_domain_clevels[0], in_domain_clevels[0]+0.1]
                     out_domain_clevels = in_domain_clevels
                 else:
                     in_domain_clevels = np.linspace(
                         np.min(in_domain_norm_score_cur), np.max(in_domain_norm_score_cur), 10)
                     if in_domain_clevels[0] == in_domain_clevels[-1]:
-                        in_domain_clevels = None
+                        in_domain_clevels = [in_domain_clevels[0], in_domain_clevels[0]+0.1]
                     out_domain_clevels = np.linspace(
                         np.min(out_domain_norm_score_cur), np.max(out_domain_norm_score_cur), 10)
                     if out_domain_clevels[0] == out_domain_clevels[-1]:
-                        out_domain_clevels = None
+                        out_domain_clevels = [out_domain_clevels[0], out_domain_clevels[0]+0.1]
 
                 plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur, levels=in_domain_clevels)
                 plt.colorbar()
