@@ -223,13 +223,26 @@ class NormalityTests:
                     (len(rf_thresholds_range), len(gpr_thresholds_range)))
                 out_domain_norm_score_cur = np.array(out_domain_norm_scores[test][b_i]).reshape(
                     (len(rf_thresholds_range), len(gpr_thresholds_range)))
+
                 if contour_plot_same_scale:
-                    clevels = np.linspace(min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur)),
-                                          max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
-                                          10)
+                    in_domain_clevels = np.linspace(
+                        min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur)),
+                        max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
+                        10)
+                    if in_domain_clevels[0] == in_domain_clevels[-1]:
+                        in_domain_clevels = None
+                    out_domain_clevels = in_domain_clevels
                 else:
-                    clevels = None
-                plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur, levels=clevels)
+                    in_domain_clevels = np.linspace(
+                        np.min(in_domain_norm_score_cur), np.max(in_domain_norm_score_cur), 10)
+                    if in_domain_clevels[0] == in_domain_clevels[-1]:
+                        in_domain_clevels = None
+                    out_domain_clevels = np.linspace(
+                        np.min(out_domain_norm_score_cur), np.max(out_domain_norm_score_cur), 10)
+                    if out_domain_clevels[0] == out_domain_clevels[-1]:
+                        out_domain_clevels = None
+
+                plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur, levels=in_domain_clevels)
                 plt.colorbar()
                 plt.title('{} In-Domain {} {} bins'.format(name, test, b_i))
                 plt.xlabel('GPR cutoff')
@@ -239,7 +252,7 @@ class NormalityTests:
                 plt.savefig('{}-Domain-Results/{}-bins/{} In-Domain {} {} bins.png'.format(name, b_i, name, test, b_i))
                 plt.clf()
 
-                plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur, levels=clevels)
+                plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur, levels=out_domain_clevels)
                 plt.colorbar()
                 plt.title('{} Out-Domain {} {} bins'.format(name, test, b_i))
                 plt.xlabel('GPR cutoff')
