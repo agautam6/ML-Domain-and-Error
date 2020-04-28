@@ -4,6 +4,7 @@ from sklearn.model_selection import ShuffleSplit
 from package import gpr, io, rf, testhelper as th
 import matplotlib.pyplot as plt
 from tabulate import tabulate
+from pathlib import Path
 
 
 class NormalityTests:
@@ -189,6 +190,7 @@ class NormalityTests:
             cf_xticks = np.append(cf_xticks[:-1], 'INF')
             cf_yticks = np.append(cf_yticks[:-1], 'INF')
 
+        Path("{}-Domain-Results".format(name)).mkdir(parents=True, exist_ok=True)
         if make_counts_plot:
             in_domain_num_points = np.array(in_domain_num_points).reshape(
                 (len(rf_thresholds_range), len(gpr_thresholds_range)))
@@ -216,6 +218,7 @@ class NormalityTests:
 
         for test in normalityTests:
             for b_i in bin_sizes:
+                Path("{}-Domain-Results/{}-bins".format(name, b_i)).mkdir(parents=True, exist_ok=True)
                 in_domain_norm_score_cur = np.array(in_domain_norm_scores[test][b_i]).reshape(
                     (len(rf_thresholds_range), len(gpr_thresholds_range)))
                 out_domain_norm_score_cur = np.array(out_domain_norm_scores[test][b_i]).reshape(
