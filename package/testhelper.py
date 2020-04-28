@@ -232,13 +232,14 @@ def getcontribution(GPR_error, RF_error, gpr_threshold=0.8, rf_threshold=0.8):
     else:
         return 3
 
+
 def getMetricOne(data):
     outside = 0
     total = len(data)
     for i in range(0, total):
         if data[i] > 1 or data[i] < -1:
             outside = outside + 1
-    if total != 0:
+    if (total * 0.32) >= 20:
         return outside / (total * 0.32)
     else:
         return -1
@@ -250,10 +251,11 @@ def getMetricTwo(data):
     for i in range(0, total):
         if data[i] > 2 or data[i] < -2:
             outside = outside + 1
-    if total != 0:
+    if (total * 0.05) >= 20:
         return outside / (total * 0.05)
     else:
         return -1
+
 
 def getLogRMSnormalityscore(counts, bins):
     return np.log10(getRMSnormalityscore(counts, bins))

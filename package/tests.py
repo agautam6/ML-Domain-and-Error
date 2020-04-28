@@ -225,20 +225,32 @@ class NormalityTests:
                     (len(rf_thresholds_range), len(gpr_thresholds_range)))
 
                 if contour_plot_same_scale:
-                    in_domain_clevels = np.linspace(
-                        min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur)),
-                        max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
-                        10)
+                    if test is 'MetricOne' or test is 'MetricTwo':
+                        in_domain_clevels = np.linspace(
+                            max(0, min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur))),
+                            max(0, max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur))),
+                            10)
+                    else:
+                        in_domain_clevels = np.linspace(
+                            min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur)),
+                            max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
+                            10)
                     if in_domain_clevels[0] == in_domain_clevels[-1]:
                         in_domain_clevels = [in_domain_clevels[0], in_domain_clevels[0]+0.1]
                     out_domain_clevels = in_domain_clevels
                 else:
-                    in_domain_clevels = np.linspace(
-                        np.min(in_domain_norm_score_cur), np.max(in_domain_norm_score_cur), 10)
+                    if test is 'MetricOne' or test is 'MetricTwo':
+                        in_domain_clevels = np.linspace(
+                            max(0, np.min(in_domain_norm_score_cur)), max(0, np.max(in_domain_norm_score_cur)), 10)
+                        out_domain_clevels = np.linspace(
+                            max(0, np.min(out_domain_norm_score_cur)), max(0, np.max(out_domain_norm_score_cur)), 10)
+                    else:
+                        in_domain_clevels = np.linspace(
+                            np.min(in_domain_norm_score_cur), np.max(in_domain_norm_score_cur), 10)
+                        out_domain_clevels = np.linspace(
+                            np.min(out_domain_norm_score_cur), np.max(out_domain_norm_score_cur), 10)
                     if in_domain_clevels[0] == in_domain_clevels[-1]:
                         in_domain_clevels = [in_domain_clevels[0], in_domain_clevels[0]+0.1]
-                    out_domain_clevels = np.linspace(
-                        np.min(out_domain_norm_score_cur), np.max(out_domain_norm_score_cur), 10)
                     if out_domain_clevels[0] == out_domain_clevels[-1]:
                         out_domain_clevels = [out_domain_clevels[0], out_domain_clevels[0]+0.1]
 
