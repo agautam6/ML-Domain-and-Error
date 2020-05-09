@@ -219,12 +219,12 @@ for test in normalityTests:
                 in_domain_clevels = np.linspace(
                     max(0, np.min(in_domain_norm_score_cur)), max(0, np.max(in_domain_norm_score_cur)), 10)
                 out_domain_clevels = np.linspace(
-                    max(1.6, np.min(out_domain_norm_score_cur)), max(1.6, np.max(out_domain_norm_score_cur)), 10)
+                    max(0, np.min(out_domain_norm_score_cur)), max(0, np.max(out_domain_norm_score_cur)), 10)
             elif test is 'MetricTwo':
                 in_domain_clevels = np.linspace(
                     max(0, np.min(in_domain_norm_score_cur)), max(0, np.max(in_domain_norm_score_cur)), 10)
                 out_domain_clevels = np.linspace(
-                    max(6.0, np.min(out_domain_norm_score_cur)), max(6.0, np.max(out_domain_norm_score_cur)), 10)
+                    max(0, np.min(out_domain_norm_score_cur)), max(0, np.max(out_domain_norm_score_cur)), 10)
             else:
                 in_domain_clevels = np.linspace(
                     np.min(in_domain_norm_score_cur), np.max(in_domain_norm_score_cur), 10)
