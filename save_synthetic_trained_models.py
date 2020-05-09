@@ -7,19 +7,6 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 import pickle
 
-it = 10
-randomstate = None
-gpr_thresholds_range = round(arange(0.1, 1.2, 0.1), 1)
-rf_thresholds_range = round(arange(0.1, 1.2, 0.1), 1)
-# normalityTests = ['RMSE', 'Shapiro-Wilk', 'DAgostino-Pearson']
-normalityTests = ['RMSE']
-defaults = {'RMSE': 1, 'Shapiro-Wilk': 0, 'DAgostino-Pearson': 0}
-bin_sizes = [10, 50, 100, 200, 500]
-
-rfslope = 0.256
-rfintercept = 0.0184
-
-
 # define training data size
 training_num = 10000
 
