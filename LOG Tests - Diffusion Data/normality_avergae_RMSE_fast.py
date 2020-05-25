@@ -1,4 +1,5 @@
 import os
+import pickle
 import statistics
 
 import matplotlib.pyplot as plt
@@ -13,9 +14,11 @@ from package import gpr, io, rf, testhelper as th
 gpr_thresholds_range = np.round(np.arange(0.5, 1.2, 0.1), 1)
 rf_thresholds_range = np.round(np.arange(0.5, 1.2, 0.1), 1)
 include_INF = True
-normalityTests = ['RMSE', 'Normalized-RMSE', 'Log-RMSE', 'Normalized-Log-RMSE']
-bin_sizes = [10, 50, 100, 200, 500]
-contour_plot_same_scale = False
+# normalityTests = ['RMSE', 'Normalized-RMSE', 'Log-RMSE', 'Normalized-Log-RMSE']
+normalityTests = ['MetricOne', 'MetricTwo']
+# bin_sizes = [10, 50, 100, 200, 500]
+bin_sizes = [200]
+contour_plot_same_scale = True
 make_counts_plot = True
 
 # Resources
@@ -50,7 +53,7 @@ out_domain = [[], [], []]
 alreadyDone = []
 count = 0
 
-path = os.path.abspath('..') + "/domain results/Normalized RMSE/Diffusion LOG Pair/INF/"
+path = os.path.abspath('..') + "/domain results/trial/"
 
 
 def checkAlreadyDone(element, alreadylist):
@@ -60,74 +63,74 @@ def checkAlreadyDone(element, alreadylist):
     return False
 
 
-# # Getting the values computed previously:
-# if os.path.isfile('LOG_Pair_values.pkl'):
-#     with open('LOG_Pair_values.pkl', 'rb') as f:
-#         in_domain, out_domain = pickle.load(f)
-#
-# else:
-for train_index, test_index in rfk.split(X, Y, groups):
-    X_train_1, X_test_1 = X.iloc[train_index], X.iloc[test_index]
-    y_train_1, y_test_1 = Y.iloc[train_index], Y.iloc[test_index]
+# Getting the values computed previously:
+if os.path.isfile('LOG_Pair_values.pkl'):
+    with open('LOG_Pair_values.pkl', 'rb') as f:
+        in_domain, out_domain, accumulator = pickle.load(f)
 
-    groups2 = np.delete(groups, test_index)
-    testGroup = np.delete(groups, train_index)
+else:
+    for train_index, test_index in rfk.split(X, Y, groups):
+        X_train_1, X_test_1 = X.iloc[train_index], X.iloc[test_index]
+        y_train_1, y_test_1 = Y.iloc[train_index], Y.iloc[test_index]
 
-    for train_index_2, test_index_2 in rfk.split(X_train_1, y_train_1, groups2):
-        X_train, X_test = X.iloc[train_index_2], X.iloc[test_index_2]
-        y_train, y_test = Y.iloc[train_index_2], Y.iloc[test_index_2]
+        groups2 = np.delete(groups, test_index)
+        testGroup = np.delete(groups, train_index)
 
-        testGroup2 = np.delete(groups2, train_index_2)
+        for train_index_2, test_index_2 in rfk.split(X_train_1, y_train_1, groups2):
+            X_train, X_test = X.iloc[train_index_2], X.iloc[test_index_2]
+            y_train, y_test = Y.iloc[train_index_2], Y.iloc[test_index_2]
 
-        if checkAlreadyDone(testGroup2[0], alreadyDone):
-            continue
+            testGroup2 = np.delete(groups2, train_index_2)
 
-        frames = [X_test_1, X_test]
-        twoTest = pd.concat(frames)
+            if checkAlreadyDone(testGroup2[0], alreadyDone):
+                continue
 
-        yTest = [y_test_1, y_test]
-        yFrames = pd.concat(yTest)
+            frames = [X_test_1, X_test]
+            twoTest = pd.concat(frames)
 
-        testFinal = np.concatenate((testGroup, testGroup2))
+            yTest = [y_test_1, y_test]
+            yFrames = pd.concat(yTest)
 
-        RF = rf.RF()
-        RF.train(X_train, y_train, std=y_std)
+            testFinal = np.concatenate((testGroup, testGroup2))
 
-        GPR = gpr.GPR()
-        GPR.train(X_train, y_train, userkernel=gprsavedkernel, std=y_std, optimizer_restarts=0)
-        # Here instead of res, sigma try calculating domain prediction for the test data.
+            RF = rf.RF()
+            RF.train(X_train, y_train, std=y_std)
 
-        gpr_pred, GPR_errors = GPR.predict(twoTest, True)
-        rf_pred, RF_errors = RF.predict(twoTest, True)
-        RF_errors = rfslope * RF_errors + rfintercept
+            GPR = gpr.GPR()
+            GPR.train(X_train, y_train, userkernel=gprsavedkernel, std=y_std, optimizer_restarts=0)
+            # Here instead of res, sigma try calculating domain prediction for the test data.
 
-        # Start measuring on different thresholds
-        for i_rf_thresholds in range(0, len(rf_thresholds_range)):
-            for i_gpr_thresholds in range(0, len(gpr_thresholds_range)):
-                gpr_thresh = round(gpr_thresholds[i_rf_thresholds, i_gpr_thresholds], 1)
-                rf_thresh = round(rf_thresholds[i_rf_thresholds, i_gpr_thresholds], 1)
-                in_domain = accumulator[(rf_thresh, gpr_thresh, 1)]
-                out_domain = accumulator[(rf_thresh, gpr_thresh, 0)]
-                predictions = [th.predictdomain(GPR_errors[i], RF_errors[i],
-                                                gpr_threshold=gpr_thresh, rf_threshold=rf_thresh)
-                               for i in range(0, len(twoTest))]
+            gpr_pred, GPR_errors = GPR.predict(twoTest, True)
+            rf_pred, RF_errors = RF.predict(twoTest, True)
+            RF_errors = rfslope * RF_errors + rfintercept
 
-                for i in range(0, len(twoTest)):
-                    residual_by_std = (rf_pred[i] - yFrames.to_numpy(dtype=float)[i]) / y_std
-                    predicted_error = RF_errors[i]
-                    if predictions[i] is 1:
-                        in_domain.append(residual_by_std / predicted_error if predicted_error else 0)
-                    else:
-                        out_domain[th.getcontribution(GPR_errors[i], RF_errors[i],
-                                                      gpr_threshold=gpr_thresh, rf_threshold=rf_thresh) - 1]. \
-                            append(residual_by_std / predicted_error if predicted_error else 0)
+            # Start measuring on different thresholds
+            for i_rf_thresholds in range(0, len(rf_thresholds_range)):
+                for i_gpr_thresholds in range(0, len(gpr_thresholds_range)):
+                    gpr_thresh = round(gpr_thresholds[i_rf_thresholds, i_gpr_thresholds], 1)
+                    rf_thresh = round(rf_thresholds[i_rf_thresholds, i_gpr_thresholds], 1)
+                    in_domain = accumulator[(rf_thresh, gpr_thresh, 1)]
+                    out_domain = accumulator[(rf_thresh, gpr_thresh, 0)]
+                    predictions = [th.predictdomain(GPR_errors[i], RF_errors[i],
+                                                    gpr_threshold=gpr_thresh, rf_threshold=rf_thresh)
+                                   for i in range(0, len(twoTest))]
 
-        count += 1
-        print(str(count) + ": " + str(testGroup[0]) + "+" + str(testGroup2[0]))
-    alreadyDone.append(testGroup[0])
-# # Can save these variables so no need to run it again
-# with open('LOG_Pair_values.pkl', 'wb') as f:
-#     pickle.dump([in_domain, out_domain], f)
+                    for i in range(0, len(twoTest)):
+                        residual_by_std = (rf_pred[i] - yFrames.to_numpy(dtype=float)[i]) / y_std
+                        predicted_error = RF_errors[i]
+                        if predictions[i] is 1:
+                            in_domain.append(residual_by_std / predicted_error if predicted_error else 0)
+                        else:
+                            out_domain[th.getcontribution(GPR_errors[i], RF_errors[i],
+                                                          gpr_threshold=gpr_thresh, rf_threshold=rf_thresh) - 1]. \
+                                append(residual_by_std / predicted_error if predicted_error else 0)
+
+            count += 1
+            print(str(count) + ": " + str(testGroup[0]) + "+" + str(testGroup2[0]))
+        alreadyDone.append(testGroup[0])
+    # Can save these variables so no need to run it again
+    with open('LOG_Pair_values.pkl', 'wb') as f:
+        pickle.dump([in_domain, out_domain, accumulator], f)
 
 in_domain_norm_scores = {a: {b_i: [] for b_i in bin_sizes} for a in normalityTests}
 out_domain_norm_scores = {a: {b_i: [] for b_i in bin_sizes} for a in normalityTests}
@@ -158,9 +161,9 @@ for i_rf_thresholds in range(0, len(rf_thresholds_range)):
                                          _title='LOG Pair: In-domain RF: {} GPR: {}'.format(rf_thresh,
                                                                                             gpr_thresh),
                                          filename=path + "Plots/",
-                                         _bincount=bin_sizes, _normalitytest=normalityTests, _showhist=False
-                                         # , temp_file='In_domain_RF-{}_GPR-{}'.format(rf_thresh,
-                                         #                                             gpr_thresh)
+                                         _bincount=bin_sizes, _normalitytest=normalityTests
+                                         , temp_file='In_domain_RF-{}_GPR-{}'.format(rf_thresh,
+                                                                                     gpr_thresh)
                                          )
         for test in normalityTests:
             for b_i in bin_sizes:
@@ -174,9 +177,10 @@ for i_rf_thresholds in range(0, len(rf_thresholds_range)):
                                          _title='LOG Pair: Out-domain RF: {} GPR: {}'.format(rf_thresh,
                                                                                              gpr_thresh),
                                          filename=path + "Plots/",
-                                         _bincount=bin_sizes, _normalitytest=normalityTests, _showhist=False,
-                                         # temp_file='Out_domain_RF-{}_GPR-{}'.format(rf_thresh,
-                                         #                                            gpr_thresh)
+                                         _bincount=bin_sizes, _normalitytest=normalityTests,
+                                         # _showhist=False,
+                                         temp_file='Out_domain_RF-{}_GPR-{}'.format(rf_thresh,
+                                                                                    gpr_thresh)
                                          )
         for test in normalityTests:
             for b_i in bin_sizes:
@@ -207,8 +211,9 @@ if make_counts_plot:
         (len(rf_thresholds_range), len(gpr_thresholds_range)))
     out_domain_num_points = np.array(out_domain_num_points).reshape(
         (len(rf_thresholds_range), len(gpr_thresholds_range)))
-    plt.contourf(gpr_thresholds, rf_thresholds, in_domain_num_points)
+    cs = plt.contourf(gpr_thresholds, rf_thresholds, in_domain_num_points, cmap=plt.cm.jet)
     plt.colorbar()
+    cs.cmap.set_under('k')
     plt.title('LOG Pair Diffusion In-Domain Num Points')
     plt.xlabel('GPR cutoff')
     plt.ylabel('RF cutoff')
@@ -216,7 +221,8 @@ if make_counts_plot:
     plt.yticks(rf_thresholds_range, cf_yticks)
     plt.savefig(path + 'LOG Pair Diffusion In-Domain Num Points.png')
     plt.clf()
-    plt.contourf(gpr_thresholds, rf_thresholds, out_domain_num_points)
+    cs = plt.contourf(gpr_thresholds, rf_thresholds, out_domain_num_points, cmap=plt.cm.jet)
+    cs.cmap.set_under('k')
     plt.colorbar()
     plt.title('LOG Pair Diffusion Out-Domain Num Points')
     plt.xlabel('GPR cutoff')
@@ -226,20 +232,51 @@ if make_counts_plot:
     plt.savefig(path + 'LOG Pair Diffusion Out-Domain Num Points.png')
     plt.clf()
 
+
 for test in normalityTests:
     for b_i in bin_sizes:
         in_domain_norm_score_cur = np.array(in_domain_norm_scores[test][b_i]).reshape(
             (len(rf_thresholds_range), len(gpr_thresholds_range)))
         out_domain_norm_score_cur = np.array(out_domain_norm_scores[test][b_i]).reshape(
             (len(rf_thresholds_range), len(gpr_thresholds_range)))
+
         if contour_plot_same_scale:
-            clevels = np.linspace(min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur)),
-                                  max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
-                                  10)
-        else:
-            clevels = None
-        plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur, levels=clevels)
+            if test is 'MetricOne' or test is 'MetricTwo':
+                clevels = np.linspace(
+                    max(0, np.min(in_domain_norm_score_cur)),
+                    np.max(in_domain_norm_score_cur),
+                    10)
+            # else:
+            #     in_domain_clevels = np.linspace(
+            #         min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur)),
+            #         max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
+            #         10)
+            # if in_domain_clevels[0] == in_domain_clevels[-1]:
+            #     in_domain_clevels = [in_domain_clevels[0], in_domain_clevels[0] + 0.1]
+            # out_domain_clevels = in_domain_clevels
+
+        # if contour_plot_same_scale:
+        #     clevels = np.linspace(min(np.min(in_domain_norm_score_cur), np.min(out_domain_norm_score_cur)),
+        #                           max(np.max(in_domain_norm_score_cur), np.max(out_domain_norm_score_cur)),
+        #                           10)
+        # else:
+        #     clevels = None
+
+        # Changes
+        # clevels = np.linspace(0, np.max(out_domain_norm_score_cur), 10)
+        #
+        cs = plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur, levels=clevels
+                          , cmap=plt.cm.jet
+                          , extend="both"
+                          )
+        cs.cmap.set_under('k')
         plt.colorbar()
+        # plt.show()
+
+        # plt.contourf(gpr_thresholds, rf_thresholds, in_domain_norm_score_cur, levels=clevels)
+        # plt.colorbar()
+        # mymax = max([max(r) for r in in_domain_norm_score_cur])
+        # plt.clim(0,mymax)
         plt.title('LOG Pair Diffusion In-Domain {} {} bins'.format(test, b_i))
         plt.xlabel('GPR cutoff')
         plt.ylabel('RF cutoff')
@@ -248,7 +285,19 @@ for test in normalityTests:
         plt.savefig(path + 'LOG Pair Diffusion In-Domain {} {} bins.png'.format(test, b_i))
         plt.clf()
 
-        plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur, levels=clevels)
+        clevels = np.linspace(
+            max(0, np.min(out_domain_norm_score_cur)),
+            np.max(out_domain_norm_score_cur),
+            10)
+        # plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur, levels=clevels)
+        # plt.colorbar()
+        # mymax = max([max(r) for r in out_domain_norm_score_cur])
+        # plt.clim(0, mymax)
+        cs = plt.contourf(gpr_thresholds, rf_thresholds, out_domain_norm_score_cur, levels=clevels
+                          , cmap=plt.cm.jet
+                          , extend="both"
+                          )
+        cs.cmap.set_under('k')
         plt.colorbar()
         plt.title('LOG Pair Diffusion Out-Domain {} {} bins'.format(test, b_i))
         plt.xlabel('GPR cutoff')
