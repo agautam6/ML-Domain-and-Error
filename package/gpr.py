@@ -84,6 +84,11 @@ class GPR:
         pred, std = self.gp.predict(x_pred, return_std=retstd)
         return pred, std / self.y_std_train
 
+    def predict_no_divide(self, x_test, retstd=True):
+        x_pred = self.sc.transform(x_test)
+        pred, std = self.gp.predict(x_pred, return_std=retstd)
+        return pred, std
+
     def getgprmetrics(self, X_test, y_test):
         X_pred = self.sc.transform(X_test)
         y_pred, sigma = self.gp.predict(X_pred, return_std=True)
