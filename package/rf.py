@@ -59,6 +59,21 @@ class RF:
         error = np.array(error)
         return self.rf.predict(x_pred), error / self.y_std_train
 
+    # alternate predict function that doesn't divide errors by standard deviations
+    def predict_no_divide(self, x_test, retstd=True):
+        x_pred = self.sc.transform(x_test)
+        if retstd is False:
+            return self.rf.predict(x_pred)
+        error = []
+        preds = []
+        for x in range(len(x_pred)):
+            preds = []
+            for pred in self.rf.estimators_:
+                preds.append(pred.predict([x_pred[x]])[0])
+            error.append(statistics.stdev(preds))
+        error = np.array(error)
+        return self.rf.predict(x_pred), error
+
     def getrfmetrics(self, X_test, y_test):
         X_pred = self.sc.transform(X_test)
         y_pred = self.rf.predict(X_pred)
