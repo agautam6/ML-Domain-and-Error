@@ -278,7 +278,9 @@ def getDAgostinoPearsonScore(x):
 def plotrstatwithgaussian(data, _stacked=True, _label=None, _savePlot=(True, '.', '.', 'plot.png'),
                           _xlabel="", _ylabel="", _range=(-5, 5), _bincount=[10], _title="", _normalitytest=None):
     onelist = data
-    if not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
+    if len(data) == 0:
+        total = 0
+    elif not isinstance(data[0], list):  # checking for multiple data sets with only 1st element instead of all()
         total = len(data)
     else:
         onelist = [val for sublist in data for val in sublist]
